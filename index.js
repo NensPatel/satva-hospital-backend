@@ -24,7 +24,9 @@ app.use(
   })
 );
 
-// app.use("/api", require("./routes/index.route"));
+import apiRoutes from "./routes/index.route.js";
+// Use routes
+app.use("/api", apiRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello World!!!!!!!");

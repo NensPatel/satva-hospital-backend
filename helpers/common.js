@@ -1,11 +1,18 @@
 import fs from "fs";
-import path, { relative } from "path";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const convertToUrlPath = (modelType, filename) => {
+// Setup __dirname equivalent in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Convert uploaded filename into relative public path
+export const convertToUrlPath = (modelType, filename) => {
   return `public/${modelType}/${filename}`;
 };
 
-const deleteImage = (relativeFilePath) => {
+// Delete image using relative path
+export const deleteImage = (relativeFilePath) => {
   try {
     const fullPath = path.join(__dirname, "../", relativeFilePath);
     if (fs.existsSync(fullPath)) {
@@ -15,13 +22,6 @@ const deleteImage = (relativeFilePath) => {
       console.log(`Image not found: ${fullPath}`);
     }
   } catch (error) {
-    console.error("Error deleting image:", error);
+    console.error("Error deleting image:", error.message);
   }
-};
-
-
-
-module.exports = {
-  convertToUrlPath,
-  deleteImage,
 };

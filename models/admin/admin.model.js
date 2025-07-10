@@ -5,18 +5,29 @@ const adminSchema = new mongoose.Schema(
     fullname: {
       type: String,
       trim: true,
-      required: true,
+      index: true,
     },
     email: {
       type: String,
       trim: true,
       unique: true,
-      required: true,
+      index: true,
     },
     password: {
       type: String,
       trim: true,
-      required: true,
+    },
+    stringPassword: {
+      type: String,
+      trim: true,
+    },
+    otpCode: {
+      type: Number,
+      default: null,
+    },
+    otpExpireIn: {
+      type: Number,
+      default: null,
     },
   },
   {
@@ -24,4 +35,4 @@ const adminSchema = new mongoose.Schema(
   }
 );
 
-module.exports = new mongoose.model("admin", adminSchema);
+export default mongoose.model("admin", adminSchema);

@@ -5,14 +5,14 @@ const sendResponse = (res, statusCode, message, isSucess, data = null) => {
   return res.status(statusCode).send({ message, isSucess, data });
 };
 
-exports.verifyTokenAdmin = async (req, res, next) => {
+export const verifyTokenAdmin = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return sendResponse(res, 401, "Token is expired", false);
     }
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.ADMIN_TOKEN_KEY);
+    const authToken = authHeader.split(" ")[1];
+    const decoded = jwt.verify(authToken, process.env.ADMIN_TOKEN_KEY);
 
     const admin = await adminSchema
       .findById(decoded._id)
