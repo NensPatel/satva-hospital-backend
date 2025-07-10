@@ -7,6 +7,8 @@ import specialityRoute from "./admin/speciality.route.js";
 import disorderRoute from "./admin/disorder.route.js";
 import disorderSectionRoute from "./admin/disorderSection.route.js";
 import cashlessRoute from "./admin/cashless.route.js";
+import patientReviewRoute from "./admin/patientReview.route.js";
+import healthInfoRoute from "./admin/healthInfo.route.js";
 
 const router = express.Router();
 
@@ -18,5 +20,7 @@ router.use("/speciality", specialityRoute);
 router.use("/disorder", disorderRoute);
 router.use("/disorderSection", disorderSectionRoute);
 router.use("/cashless", cashlessRoute);
+router.use("/patientReview", patientReviewRoute);
+router.use("/healthInfo", healthInfoRoute);
 
 export default router;

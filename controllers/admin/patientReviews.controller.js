@@ -1,24 +1,17 @@
-import coreServiceSchema from "../../models/admin/coreServices.model.js";
-import { deleteImage } from "../../helpers/common.js";
+import patientRSchema from "../../models/admin/patientReview.model.js";
 
-export const createCoreService = async (req, res) => {
+export const createPatientReview = async (req, res) => {
   try {
-    const { sort_order_no, short_desc, label, isActive } = req.body;
-    const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/coreServices/" + imageFile.filename : "";
+    const { sort_order_no, patient_name, content, isActive } = req.body;
 
     const createObj = {
       sort_order_no,
-      short_desc,
-      label,
+      patient_name,
+      content,
       isActive,
     };
 
-    if (icon) {
-      createObj.icon = icon;
-    }
-
-    const saveData = new coreServiceSchema(createObj);
+    const saveData = new patientRSchema(createObj);
     await saveData.save();
 
     return res.status(200).send({
@@ -34,39 +27,25 @@ export const createCoreService = async (req, res) => {
   }
 };
 
-export const updateCoreService = async (req, res) => {
+export const updatePatientReview = async (req, res) => {
   try {
-    const { coreServices_id, sort_order_no, short_desc, label, isActive } = req.body;
-    const findData = await coreServiceSchema.findById(coreServices_id);
+    const { review_id, sort_order_no, patient_name, content, isActive } = req.body;
+    const findData = await patientRSchema.findById(review_id);
     if (!findData) {
       return res
         .status(404)
         .send({ message: "Data not found!", isSuccess: false });
     }
 
-    const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/coreServices/" + imageFile.filename : "";
-
     const updateObj = {
       sort_order_no,
-      short_desc,
-      label,
+      patient_name,
+      content,
       isActive,
     };
 
-    if (icon) {
-      if (findData.icon) {
-        let iconPath = findData.icon;
-        if (!iconPath.startsWith("public/")) {
-          iconPath = "public/" + iconPath;
-        }
-        await deleteImage(iconPath);
-      }
-      updateObj.icon = icon;
-    }
-
-    const updated = await coreServiceSchema.findByIdAndUpdate(
-      coreServices_id,
+    const updated = await patientRSchema.findByIdAndUpdate(
+      review_id,
       updateObj,
       { new: true }
     );
@@ -81,21 +60,17 @@ export const updateCoreService = async (req, res) => {
   }
 };
 
-export const deleteCoreService = async (req, res) => {
+export const deletePatientReview = async (req, res) => {
   try {
-    const { coreServices_id } = req.body;
-    const findData = await coreServiceSchema.findById(coreServices_id);
+    const { review_id } = req.body;
+    const findData = await patientRSchema.findById(review_id);
     if (!findData) {
       return res
         .status(404)
         .send({ message: "Data not found!", isSuccess: false });
     }
 
-    if (findData.icon) {
-      await deleteImage(findData.icon);
-    }
-
-    await coreServiceSchema.findByIdAndDelete(coreServices_id);
+    await patientRSchema.findByIdAndDelete(review_id);
 
     return res.status(200).send({
       isSuccess: true,
@@ -106,9 +81,9 @@ export const deleteCoreService = async (req, res) => {
   }
 };
 
-export const getAllCoreServices = async (req, res) => {
+export const getAllPatientReview = async (req, res) => {
   try {
-    const getData = await coreServiceSchema.find().sort({ sort_order_no: 1 });
+    const getData = await patientRSchema.find().sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -121,8 +96,8 @@ export const getAllCoreServices = async (req, res) => {
 
 export const getDataById = async (req, res) => {
   try {
-    const { coreServices_id } = req.body;
-    const getData = await coreServiceSchema.findById(coreServices_id);
+    const { review_id } = req.body;
+    const getData = await patientRSchema.findById(review_id);
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",
@@ -140,12 +115,12 @@ export const getPaginationData = async (req, res) => {
     limit = parseInt(limit);
     const skip = (page - 1) * limit;
 
-    const getData = await coreServiceSchema
+    const getData = await patientRSchema
       .find()
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);
-    const totalRecords = await coreServiceSchema.countDocuments();
+    const totalRecords = await patientRSchema.countDocuments();
 
     return res.status(200).send({
       isSuccess: true,
@@ -162,7 +137,7 @@ export const getPaginationData = async (req, res) => {
 
 export const getLastSrNo = async (req, res) => {
   try {
-    const lastSortOrderItem = await coreServiceSchema
+    const lastSortOrderItem = await patientRSchema
       .findOne()
       .sort({ sort_order_no: -1 });
     return res.status(200).send({ isSuccess: true, data: lastSortOrderItem });
