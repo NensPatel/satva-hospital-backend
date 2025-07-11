@@ -1,17 +1,16 @@
-
-import countersSchema from "../../models/admin/counter.model.js";
+import featuresSchema from "../../models/admin/features.model.js";
 import { deleteImage } from "../../helpers/common.js";
 
-export const createCounters = async (req, res) => {
+export const createFeature = async (req, res) => {
   try {
-    const { sort_order_no, count, label, isActive } = req.body;
+    const { sort_order_no, title, description, isActive } = req.body;
     const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/counter/" + imageFile.filename : "";
+    const icon = imageFile ? "public/features/" + imageFile.filename : "";
 
     const createObj = {
       sort_order_no,
-      count,
-      label,
+      title,
+      description,
       isActive,
     };
 
@@ -19,7 +18,7 @@ export const createCounters = async (req, res) => {
       createObj.icon = icon;
     }
 
-    const saveData = new countersSchema(createObj);
+    const saveData = new featuresSchema(createObj);
     await saveData.save();
 
     return res.status(200).send({
@@ -35,10 +34,10 @@ export const createCounters = async (req, res) => {
   }
 };
 
-export const updateCounters = async (req, res) => {
+export const updateFeature = async (req, res) => {
   try {
-    const { counter_id, sort_order_no, count, label, isActive } = req.body;
-    const findData = await countersSchema.findById(counter_id);
+    const { feature_id, sort_order_no, title, description, isActive } = req.body;
+    const findData = await featuresSchema.findById(feature_id);
     if (!findData) {
       return res
         .status(404)
@@ -46,12 +45,12 @@ export const updateCounters = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/counter/" + imageFile.filename : "";
+    const icon = imageFile ? "public/features/" + imageFile.filename : "";
 
     const updateObj = {
       sort_order_no,
-      count,
-      label,
+      title,
+      description,
       isActive,
     };
 
@@ -66,8 +65,8 @@ export const updateCounters = async (req, res) => {
       updateObj.icon = icon;
     }
 
-    const updated = await countersSchema.findByIdAndUpdate(
-      counter_id,
+    const updated = await featuresSchema.findByIdAndUpdate(
+      feature_id,
       updateObj,
       { new: true }
     );
@@ -82,10 +81,10 @@ export const updateCounters = async (req, res) => {
   }
 };
 
-export const deleteCounters = async (req, res) => {
+export const deleteFeature = async (req, res) => {
   try {
-    const { counter_id } = req.body;
-    const findData = await countersSchema.findById(counter_id);
+    const { feature_id } = req.body;
+    const findData = await featuresSchema.findById(feature_id);
     if (!findData) {
       return res
         .status(404)
@@ -96,7 +95,7 @@ export const deleteCounters = async (req, res) => {
       await deleteImage(findData.icon);
     }
 
-    await countersSchema.findByIdAndDelete(counter_id);
+    await featuresSchema.findByIdAndDelete(feature_id);
 
     return res.status(200).send({
       isSuccess: true,
@@ -107,9 +106,9 @@ export const deleteCounters = async (req, res) => {
   }
 };
 
-export const getAllCounters = async (req, res) => {
+export const getAllFeature = async (req, res) => {
   try {
-    const getData = await countersSchema.find().sort({ sort_order_no: 1 });
+    const getData = await featuresSchema.find().sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -122,8 +121,8 @@ export const getAllCounters = async (req, res) => {
 
 export const getDataById = async (req, res) => {
   try {
-    const { counter_id } = req.body;
-    const getData = await countersSchema.findById(counter_id);
+    const { feature_id } = req.body;
+    const getData = await featuresSchema.findById(feature_id);
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",
@@ -141,12 +140,12 @@ export const getPaginationData = async (req, res) => {
     limit = parseInt(limit);
     const skip = (page - 1) * limit;
 
-    const getData = await countersSchema
+    const getData = await featuresSchema
       .find()
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);
-    const totalRecords = await countersSchema.countDocuments();
+    const totalRecords = await featuresSchema.countDocuments();
 
     return res.status(200).send({
       isSuccess: true,
@@ -163,7 +162,7 @@ export const getPaginationData = async (req, res) => {
 
 export const getLastSrNo = async (req, res) => {
   try {
-    const lastSortOrderItem = await countersSchema
+    const lastSortOrderItem = await featuresSchema
       .findOne()
       .sort({ sort_order_no: -1 });
     return res.status(200).send({ isSuccess: true, data: lastSortOrderItem });

@@ -139,6 +139,18 @@ const uploadHealthInfo = multer({
   fileFilter: imgFilter,
 }).any(); 
 
+const uploadFeatures = multer({
+  storage: createModelStorage("features"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imgFilter,
+}).any();
+
+const uploadOurTeam = multer({
+  storage: createModelStorage("ourTeam"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imgFilter,
+}).any();
+
 const uploadSpeciality = multer({
   storage: createModelStorage("speciality"),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -157,6 +169,8 @@ export {
   uploadSpeciality,
   uploadCashlessFacility,
   uploadHealthInfo,
+  uploadFeatures,
+  uploadOurTeam,
   uploadDocuments,
   imgFilter,
   docFilter,

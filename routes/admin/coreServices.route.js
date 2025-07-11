@@ -14,7 +14,7 @@ import {
   getDataById,
   getAllCoreServices,
   getLastSrNo,
-} from "../../controllers/admin/coreServices.controllers.js";
+} from "../../controllers/admin/coreServices.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
 import { uploadCoreServices } from "../../middleware/admin/upload.js";

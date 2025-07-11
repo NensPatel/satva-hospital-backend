@@ -9,6 +9,9 @@ import disorderSectionRoute from "./admin/disorderSection.route.js";
 import cashlessRoute from "./admin/cashless.route.js";
 import patientReviewRoute from "./admin/patientReview.route.js";
 import healthInfoRoute from "./admin/healthInfo.route.js";
+import featureRoute from "./admin/feature.route.js";
+import ourTeamRoute from "./admin/ourTeam.route.js";
+import doctorDetailsRoute from "./admin/doctorDetails.route.js";
 
 const router = express.Router();
 
@@ -22,5 +25,8 @@ router.use("/disorderSection", disorderSectionRoute);
 router.use("/cashless", cashlessRoute);
 router.use("/patientReview", patientReviewRoute);
 router.use("/healthInfo", healthInfoRoute);
+router.use("/feature", featureRoute);
+router.use("/ourTeam", ourTeamRoute);
+router.use("/doctorDetails", doctorDetailsRoute);
 
 export default router;

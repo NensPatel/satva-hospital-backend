@@ -199,3 +199,17 @@ export const getLastSrNo = async (req, res) => {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+
+export const getDataBySlug = async (req, res) => {
+  try {
+    const { slug } = req.body;
+    const data = await healthSchema.findOne({ slug });
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Get data successfully.",
+      data,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};

@@ -1,42 +1,32 @@
 import mongoose from "mongoose";
-import disordersSchema from "../../models/admin/disorder.model.js";
-import specialitiesSchema from "../../models/admin/spciality.model.js";
-import slugify from "slugify"; 
-
-export const createDisorder = async (req, res) => {
+import doctordetailSchema from "../../models/admin/doctorDetails.model.js"; 
+import doctorSchema from "../../models/admin/ourTeam.model.js"; 
+ 
+export const createDoctorDetails = async (req, res) => {
   try {
-    const { sort_order_no, name, slug, speciality_id, isActive } = req.body;
+    const { sort_order_no, title, content, doctor_id, isActive } = req.body;
 
     // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(speciality_id)) {
+    if (!mongoose.Types.ObjectId.isValid(doctor_id)) {
       return res.status(400).send({
-        message: "Invalid speciality_id format.",
+        message: "Invalid doctor_id format.",
         isSuccess: false,
       });
     }
 
-    const specialityExists = await specialitiesSchema.findById(speciality_id);
-    if (!specialityExists) {
+    const disorderExists = await doctorSchema.findById(doctor_id);
+    if (!disorderExists) {
       return res.status(400).send({
-        message: "No such speciality exists.",
+        message: "No such Disorder exists.",
         isSuccess: false,
       });
     }
 
-    const cleanedSlug = slugify(slug, { lower: true, strict: true }); 
-    const existingSlug = await disordersSchema.findOne({ slug });
-    if (existingSlug) {
-      return res.status(400).send({
-        message: "Slug already exists. Please use a unique slug.",
-        isSuccess: false,
-      });
-    }
-
-    const newDisorder = new disordersSchema({
+    const newDisorder = new doctordetailSchema({
       sort_order_no,
-      name,
-      slug: cleanedSlug, 
-      speciality_id,
+      title,
+      content, 
+      doctor_id,
       isActive: typeof isActive === "boolean" ? isActive : true,
     });
 
@@ -53,58 +43,45 @@ export const createDisorder = async (req, res) => {
 };
 
 
-export const updateDisorder = async (req, res) => {
+export const updateDoctorDetails = async (req, res) => {
   try {
-    const { disorder_id, sort_order_no, name, slug, speciality_id, isActive } = req.body;
+    const { doctorDetails_id, sort_order_no, title, content, doctor_id, isActive } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(disorder_id)) {
+    if (!mongoose.Types.ObjectId.isValid(doctorDetails_id)) {
       return res.status(400).send({
-        message: "Invalid disorder_id format.",
+        message: "Invalid doctorDetails_id format.",
         isSuccess: false,
       });
     }
 
-    const existingDisorder = await disordersSchema.findById(disorder_id);
+    const existingDisorder = await doctordetailSchema.findById(doctorDetails_id);
     if (!existingDisorder) {
       return res.status(404).send({
-        message: "Disorder not found.",
+        message: "Disorder Section not found.",
         isSuccess: false,
       });
     }
 
-    if (speciality_id && !mongoose.Types.ObjectId.isValid(speciality_id)) {
+    if (doctor_id && !mongoose.Types.ObjectId.isValid(doctor_id)) {
       return res.status(400).send({
-        message: "Invalid speciality_id format.",
-        isSuccess: false,
-      });
-    }
-
-    const cleanedSlug = slugify(slug || name, { lower: true, strict: true });
-
-    const duplicate = await disordersSchema.findOne({
-      slug: cleanedSlug,
-      _id: { $ne: disorder_id },
-    });
-    if (duplicate) {
-      return res.status(400).send({
-        message: "Slug already in use by another disorder.",
+        message: "Invalid doctor_id format.",
         isSuccess: false,
       });
     }
 
     const updateObj = {
       sort_order_no,
-      name,
-      slug: cleanedSlug,
+      title,
+      content,
       isActive,
     };
 
-    if (speciality_id) {
-      updateObj.speciality_id = speciality_id;
+    if (doctor_id) {
+      updateObj.doctor_id = doctor_id;
     }
 
-    const updatedDisorder = await disordersSchema.findByIdAndUpdate(
-      disorder_id,
+    const updatedDisorder = await doctordetailSchema.findByIdAndUpdate(
+      doctorDetails_id,
       updateObj,
       { new: true }
     );
@@ -123,17 +100,17 @@ export const updateDisorder = async (req, res) => {
   }
 };
 
-export const deleteDisorder = async (req, res) => {
+export const deleteDoctorDetails = async (req, res) => {
   try {
-    const { disorder_id } = req.body;
-    if (!mongoose.Types.ObjectId.isValid(disorder_id)) {
+    const { doctorDetails_id } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(doctorDetails_id)) {
       return res.status(400).send({
-        message: "Invalid disorder_id format.",
+        message: "Invalid doctorDetails_id format.",
         isSuccess: false,
       });
     }
 
-    const deleted = await disordersSchema.findByIdAndDelete(disorder_id);
+    const deleted = await doctordetailSchema.findByIdAndDelete(doctorDetails_id);
     if (!deleted) {
       return res
         .status(404)
@@ -149,11 +126,11 @@ export const deleteDisorder = async (req, res) => {
   }
 };
 
-export const getAllDisorders = async (req, res) => {
+export const getAllDoctorDetails = async (req, res) => {
   try {
-    const data = await disordersSchema
+    const data = await doctordetailSchema
       .find()
-      .populate("speciality_id", "title")
+      .populate("doctor_id", "name")
       .sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
@@ -167,17 +144,17 @@ export const getAllDisorders = async (req, res) => {
 
 export const getDataById = async (req, res) => {
   try {
-    const { disorder_id } = req.body;
-    if (!mongoose.Types.ObjectId.isValid(disorder_id)) {
+    const { doctorDetails_id } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(doctorDetails_id)) {
       return res.status(400).send({
-        message: "Invalid disorder_id format.",
+        message: "Invalid doctorDetails_id format.",
         isSuccess: false,
       });
     }
 
-    const data = await disordersSchema
-      .findById(disorder_id)
-      .populate("speciality_id", "title");
+    const data = await doctordetailSchema
+      .findById(doctorDetails_id)
+      .populate("doctor_id", "name");
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",
@@ -196,13 +173,13 @@ export const getPaginationData = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const [data, totalRecords] = await Promise.all([
-      disordersSchema
+      doctordetailSchema
         .find()
         .sort({ sort_order_no: 1 })
         .skip(skip)
         .limit(limit)
-        .populate("speciality_id", "title"),
-      disordersSchema.countDocuments(),
+        .populate("doctor_id", "name"),
+      doctordetailSchema.countDocuments(),
     ]);
 
     return res.status(200).send({
@@ -220,24 +197,10 @@ export const getPaginationData = async (req, res) => {
 
 export const getLastSrNo = async (req, res) => {
   try {
-    const lastItem = await disordersSchema
+    const lastItem = await doctordetailSchema
       .findOne()
       .sort({ sort_order_no: -1 });
     return res.status(200).send({ isSuccess: true, data: lastItem });
-  } catch (error) {
-    return res.status(500).send({ message: error.message, isSuccess: false });
-  }
-};
-
-export const getDataBySlug = async (req, res) => {
-  try {
-    const { slug } = req.body;
-    const data = await disordersSchema.findOne({ slug });
-    return res.status(200).send({
-      isSuccess: true,
-      message: "Get data successfully.",
-      data,
-    });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }

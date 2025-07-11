@@ -25,3 +25,5 @@ export const deleteImage = (relativeFilePath) => {
     console.error("Error deleting image:", error.message);
   }
 };
+
+

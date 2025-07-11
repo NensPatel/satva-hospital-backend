@@ -1,7 +1,3 @@
-// controllers/speciality.controller.js
-
-import path from "path";
-import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 import specialitySchema from "../../models/admin/spciality.model.js";
 import { deleteImage } from "../../helpers/common.js";
