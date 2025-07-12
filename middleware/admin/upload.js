@@ -151,6 +151,18 @@ const uploadOurTeam = multer({
   fileFilter: imgFilter,
 }).any();
 
+const uplaodGallery = multer({
+  storage: createModelStorage("gallery"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imgFilter,
+}).any();
+
+const uploadAboutUs = multer({
+  storage: createModelStorage("aboutUs"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imgFilter,
+}).any();
+
 const uploadSpeciality = multer({
   storage: createModelStorage("speciality"),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -171,6 +183,8 @@ export {
   uploadHealthInfo,
   uploadFeatures,
   uploadOurTeam,
+  uplaodGallery,
+  uploadAboutUs,
   uploadDocuments,
   imgFilter,
   docFilter,

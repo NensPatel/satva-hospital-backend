@@ -12,6 +12,10 @@ import healthInfoRoute from "./admin/healthInfo.route.js";
 import featureRoute from "./admin/feature.route.js";
 import ourTeamRoute from "./admin/ourTeam.route.js";
 import doctorDetailsRoute from "./admin/doctorDetails.route.js";
+import gallaryTitleRoute from "./admin/gallaryTitle.route.js";
+import gallaryImageRoute from "./admin/gallaryImage.route.js";
+import inquiryRoute from "./admin/inquiry.route.js";
+import aboutRoute from "./admin/about.route.js";
 
 const router = express.Router();
 
@@ -28,5 +32,9 @@ router.use("/healthInfo", healthInfoRoute);
 router.use("/feature", featureRoute);
 router.use("/ourTeam", ourTeamRoute);
 router.use("/doctorDetails", doctorDetailsRoute);
+router.use("/gallaryTitle", gallaryTitleRoute);
+router.use("/gallaryImage", gallaryImageRoute);
+router.use("/inquiry", inquiryRoute);
+router.use("/about", aboutRoute);
 
 export default router;
