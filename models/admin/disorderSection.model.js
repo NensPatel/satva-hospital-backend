@@ -3,6 +3,11 @@ import mongoose from "mongoose";
 
 const disorderSectionSchema = new mongoose.Schema(
   {
+    sort_order_no: { 
+      type: Number, 
+      trim: true,
+      index: true,
+    },
     disorder_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "disorders",
@@ -23,11 +28,7 @@ const disorderSectionSchema = new mongoose.Schema(
       default: true,
       index: true, 
     },
-    sort_order_no: { 
-      type: Number, 
-      trim: true,
-      index: true,
-    },
+  
   },
   { timestamps: true }
 );

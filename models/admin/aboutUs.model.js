@@ -1,4 +1,3 @@
-// models/disorderSection.js
 import mongoose from "mongoose";
 
 const aboutUsSchema = new mongoose.Schema(

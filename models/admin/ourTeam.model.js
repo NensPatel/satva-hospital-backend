@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const doctorProfileSchema = new mongoose.Schema({
+  sort_order_no: { 
+    type: Number,
+    trim: true,
+    index: true,
+  },
   name: { 
     type: String, 
     index: true,
@@ -32,10 +37,7 @@ const doctorProfileSchema = new mongoose.Schema({
         trim: true
      }
   }],
-  sort_order_no: { 
-    type: Number,
-    index: true 
-},
+
   isActive: { 
     type: Boolean, 
     default: true,

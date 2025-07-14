@@ -3,8 +3,8 @@ import Joi from "joi";
 export const validateCreate = async (req, res, next) => {
   const schema = Joi.object({
     sort_order_no: Joi.number().required(),
-    title: Joi.string().min(2).max(50).required(),
-    content: Joi.string().required(),
+    label: Joi.string().min(2).max(50).required(),
+    short_desc: Joi.string().required(),
     isActive: Joi.boolean().optional(),
   });
 
@@ -17,11 +17,10 @@ export const validateCreate = async (req, res, next) => {
 
 export const validateUpdate = async (req, res, next) => {
   const schema = Joi.object({
-    about_id: Joi.string().length(24).required(),
+    mission_vision_id: Joi.string().length(24).required(),
     sort_order_no: Joi.number().required(),
-    title: Joi.string().min(2).max(50).required(),
-    
-    content: Joi.string().required(),
+    label: Joi.string().min(2).max(50).required(),
+    short_desc: Joi.string().required(),
     isActive: Joi.boolean().optional(),
   });
 

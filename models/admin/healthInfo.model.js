@@ -4,6 +4,11 @@ import mongoose from "mongoose";
 
 const healthInfoSchema = new mongoose.Schema(
   {
+    sort_order_no: {
+      type: Number,
+      trim: true,
+      index: true,
+    },
     title: {
       type: String,
       trim: true,
@@ -38,11 +43,6 @@ const healthInfoSchema = new mongoose.Schema(
     publishedAt: {
       type: Date,
       default: Date.now,
-    },
-    sort_order_no: {
-      type: Number,
-      trim: true,
-      index: true,
     },
     isActive: {
       type: Boolean,

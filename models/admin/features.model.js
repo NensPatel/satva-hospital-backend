@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const featureSchema = new mongoose.Schema(
   {
+    sort_order_no: { 
+      type: Number,
+      trim: true,
+      index: true,
+    },
     icon: { 
       type: String, 
       required: true,
@@ -16,11 +21,6 @@ const featureSchema = new mongoose.Schema(
       type: String, 
       required: true,
       trim: true 
-    },
-    sort_order_no: { 
-      type: Number, 
-      default: 0,
-      index: true 
     },
     isActive: { 
       type: Boolean, 

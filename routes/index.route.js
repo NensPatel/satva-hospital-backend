@@ -16,6 +16,9 @@ import gallaryTitleRoute from "./admin/gallaryTitle.route.js";
 import gallaryImageRoute from "./admin/gallaryImage.route.js";
 import inquiryRoute from "./admin/inquiry.route.js";
 import aboutRoute from "./admin/about.route.js";
+import missionvisionRoute from "./admin/missionVision.route.js";
+import menuRoute from "./admin/menu.route.js";
+import bannerRoute from "./admin/banner.route.js";
 
 const router = express.Router();
 
@@ -36,5 +39,8 @@ router.use("/gallaryTitle", gallaryTitleRoute);
 router.use("/gallaryImage", gallaryImageRoute);
 router.use("/inquiry", inquiryRoute);
 router.use("/about", aboutRoute);
+router.use("/missionVision", missionvisionRoute);
+router.use("/menu", menuRoute);
+router.use("/banner", bannerRoute);
 
 export default router;

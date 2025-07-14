@@ -1,26 +1,25 @@
 import mongoose from "mongoose";
 
-const disorderSchema = new mongoose.Schema(
+const missionVisionSchema = new mongoose.Schema(
   {
     sort_order_no: {
       type: Number,
       trim: true,
       index: true,
     },
-    name: {
+    icon: {
+      type: String, 
+      trim: true
+    },
+    label: {
       type: String,
       trim: true,
       index: true,
     },
-    slug: {
+    short_desc: {
       type: String,
-      unique: true,
       trim: true,
-    },
-    speciality_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "specialities",
-      required: true,
+      index: true,
     },
     isActive: {
       type: Boolean,
@@ -28,7 +27,10 @@ const disorderSchema = new mongoose.Schema(
       index: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-export default mongoose.model("disorders", disorderSchema);
+export default mongoose.model("mission_vision", missionVisionSchema);
+

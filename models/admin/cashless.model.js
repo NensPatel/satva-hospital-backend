@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const cashlessFacilitySchema = new mongoose.Schema(
   {
+     sort_order_no: {
+      type: Number,
+      trim: true,
+      index: true,
+    },
     name: {
       type: String,
       trim: true,
@@ -16,11 +21,6 @@ const cashlessFacilitySchema = new mongoose.Schema(
       trim: true,
       index: true
     }, 
-    sort_order_no: {
-     type: Number,
-      trim: true,
-      index: true,
-    },
     isActive: {
      type: Boolean,
       default: true,

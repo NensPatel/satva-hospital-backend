@@ -24,8 +24,9 @@ const inquirySchema = new mongoose.Schema(
       index: true,
     },
     isActive: {
-      type: Boolean,
-      default: true
+     type: Boolean,
+      default: true,
+      index: true,
     }
   },
   {

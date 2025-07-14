@@ -1,39 +1,47 @@
 import mongoose from "mongoose";
 
-const specialitiesSchema = new mongoose.Schema(
+const bannerSchema = new mongoose.Schema(
   {
     sort_order_no: {
       type: Number,
       trim: true,
       index: true,
     },
-    title: {
+    menuId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: false,
+      ref: "menu",
+      index: true,
+    },
+    bannerType: {
+      type: String,
+      enum: ["image", "video"],
+      lowercase: true,
+      index: true,
+    },
+    bannerTitle: {
       type: String,
       trim: true,
       index: true,
     },
-    short_desc: {
+    bannerLink: {
       type: String,
       trim: true,
       index: true,
     },
-    full_desc: {
+    description: {
+      type: String,
+      trim: true,
+    },
+    desktopImage: {
       type: String,
       trim: true,
       index: true,
     },
-    disorders: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "disorder" }],
-      trim: true,
-      default: [],
-    },
-    image: {
+    mobileImage: {
       type: String,
       trim: true,
-    },
-    banner: {
-      type: String,
-      trim: true,
+      index: true,
     },
     isActive: {
       type: Boolean,
@@ -41,7 +49,9 @@ const specialitiesSchema = new mongoose.Schema(
       index: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-export default mongoose.model("specialities", specialitiesSchema);
+export default mongoose.model("banner", bannerSchema);

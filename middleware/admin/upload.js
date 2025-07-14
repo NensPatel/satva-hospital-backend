@@ -10,21 +10,30 @@ const __dirname = path.dirname(__filename);
 // Storage engine generator
 const createModelStorage = (modelType) => {
   return multer.diskStorage({
-    destination: (req, file, cb) => {
-      let uploadDir = path.join(__dirname, `../../public/${modelType}`);
-      // For speciality, use subfolders for image and banner
-      if (modelType === "speciality") {
-        if (file.fieldname === "image") {
-          uploadDir = path.join(uploadDir, "image");
-        } else if (file.fieldname === "banner") {
-          uploadDir = path.join(uploadDir, "banner");
-        }
-      }
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      cb(null, uploadDir);
-    },
+   destination: (req, file, cb) => {
+  let uploadDir = path.join(__dirname, `../../public/${modelType}`);
+
+  if (modelType === "speciality") {
+    if (file.fieldname === "image") {
+      uploadDir = path.join(uploadDir, "image");
+    } else if (file.fieldname === "banner") {
+      uploadDir = path.join(uploadDir, "banner");
+    }
+  }
+
+  if (modelType === "banner") {
+    if (file.fieldname === "desktopImage") {
+      uploadDir = path.join(uploadDir, "desktop");
+    } else if (file.fieldname === "mobileImage") {
+      uploadDir = path.join(uploadDir, "mobile");
+    }
+  }
+
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+  cb(null, uploadDir);
+},
 
     filename: (req, file, cb) => {
       const filename = `${Date.now()}-${file.originalname}`;
@@ -36,6 +45,15 @@ const createModelStorage = (modelType) => {
           storedPath = `public/${modelType}/banner/${filename}`;
         }
       }
+
+        if (modelType === "banner") {
+        if (file.fieldname === "desktopImage") {
+          storedPath = `public/${modelType}/desktop/${filename}`;
+        } else if (file.fieldname === "mobileImage") {
+          storedPath = `public/${modelType}/mobile/${filename}`;
+        }
+      }
+
 
       // Optionally attach to req.body for later use
       if (file.fieldname === "image") {
@@ -57,6 +75,17 @@ const createModelStorage = (modelType) => {
   });
 };
 
+const videoFilter = (req, file, cb) => {
+   const fileTypes = /mp4|mov|avi/;
+  const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = fileTypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only videos are allowed (mp4, mov, avi, etc.)"), false);
+  }
+}
 // Image filter
 const imgFilter = (req, file, cb) => {
   const fileTypes = /jpeg|jpg|png|webp|svg|gif/;
@@ -96,9 +125,26 @@ const imgAndDocFilter = (req, file, cb) => {
   if (extname && mimetype) {
     cb(null, true);
   } else {
-    cb(new Error("Only images and documents are allowed!"), false);
+    cb(new Error("Only images,Videos and documents are allowed!"), false);
   }
 };
+
+const imgAndVideoFilter = (req, file, cb) => {
+  const imageTypes = /jpeg|jpg|png|webp|svg|gif/;
+  const videoTypes = /mp4|mov|avi/;
+  const extname =
+    imageTypes.test(path.extname(file.originalname).toLowerCase()) ||
+    videoTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype =
+    imageTypes.test(file.mimetype) || videoTypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only images and videos are allowed!"), false);
+  }
+};
+
 
 // Uploaders
 const uploadSlider = multer({
@@ -163,6 +209,12 @@ const uploadAboutUs = multer({
   fileFilter: imgFilter,
 }).any();
 
+const uploadMissionVisions = multer({
+  storage: createModelStorage("missionVision"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imgFilter,
+}).any();
+
 const uploadSpeciality = multer({
   storage: createModelStorage("speciality"),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -171,6 +223,15 @@ const uploadSpeciality = multer({
     { name: "image", maxCount: 1 },
     { name: "banner", maxCount: 1 },
   ]);
+
+  const uploadBanner = multer({
+  storage: createModelStorage("banner"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imgAndVideoFilter,
+}).fields([
+  { name: "desktopImage", maxCount: 1 },
+  { name: "mobileImage", maxCount: 1 },
+])
 
 
 // Exports
@@ -185,9 +246,13 @@ export {
   uploadOurTeam,
   uplaodGallery,
   uploadAboutUs,
+  uploadMissionVisions,
+  uploadBanner,
   uploadDocuments,
   imgFilter,
   docFilter,
+  videoFilter,
   imgAndDocFilter,
+  imgAndVideoFilter,
   createModelStorage,
 };
