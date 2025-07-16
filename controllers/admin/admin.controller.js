@@ -229,3 +229,22 @@ export const changePassword = async (req, res) => {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const adminId = req.admin._id;
+    const { fullname, email } = req.body;
+    const updated = await adminSchema.findByIdAndUpdate(
+      adminId,
+      { fullname, email },
+      { new: true }
+    );
+    return res.status(200).send({
+      message: "Profile updated successfully.",
+      isSuccess: true,
+      data: updated,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};

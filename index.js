@@ -6,7 +6,7 @@ import cors from "cors";
 
 dotenv.config();
 const app = express();
-app.use("/public", express.static("public"));
+app.use("/api", express.static("public"));
 
 connectDB();
 app.use(bodyParser.json({ limit: "100mb" }));

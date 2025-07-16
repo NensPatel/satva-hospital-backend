@@ -20,11 +20,6 @@ const healthInfoSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    short_desc: {
-      type: String,
-      trim: true,
-     index: true,
-    },
     content: {
       type: String,
       trim: true,

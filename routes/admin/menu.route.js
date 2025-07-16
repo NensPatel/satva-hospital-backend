@@ -4,34 +4,49 @@ const router = express.Router();
 import {
   validateCreate,
   validateUpdate,
-} from "../../validation/admin/menu.validation.js";  
+} from "../../validation/admin/menu.validation.js";
 
 import {
   createMenu,
   updateMenu,
   deleteMenu,
-  getPaginationData,
+  getPaginationMenus,
   getPaginationParentData,
   getDataById,
   getAllMenu,
   getLastSrNo,
-  getLastParentSrNo,
+  updateMenuIsActive,
+  updateMenuPosition,
+  getMenuWithoutPagination,
+  getMenusByParentId
 } from "../../controllers/admin/menu.controller.js";
+
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
 
+// Create
 router.post("/createMenu", verifyTokenAdmin, validateCreate, createMenu);
-router.post("/updateMenu", verifyTokenAdmin, validateUpdate, updateMenu);
-router.post("/deleteMenu", verifyTokenAdmin, deleteMenu);
-router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
-router.post(
-  "/getPaginationParentData",
-  verifyTokenAdmin,
-  getPaginationParentData
-);
+
+// Update
+router.put("/updateMenu", verifyTokenAdmin, validateUpdate, updateMenu);
+
+// Toggle isActive
+router.get('/updateMenuIsActive/:id', verifyTokenAdmin, updateMenuIsActive);
+
+// Change position
+router.put('/updateMenuPosition', verifyTokenAdmin, updateMenuPosition);
+
+// Delete
+router.delete("/deleteMenu", verifyTokenAdmin, deleteMenu);
+
+// Fetch menus
+router.get("/getMenuWithoutPagination", getMenuWithoutPagination);
+router.post("/getPaginationMenus", verifyTokenAdmin, getPaginationMenus);
+router.post("/getPaginationParentData", verifyTokenAdmin, getPaginationParentData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.post("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
-router.post("/getLastParentSrNo", verifyTokenAdmin, getLastParentSrNo);
+router.post("/getmenus",getMenusByParentId)
 
-router.post("/getAllMenu", getAllMenu);
+// All menus
+router.get("/getAllMenu", getAllMenu);
 
 export default router;

@@ -4,7 +4,7 @@ import slugify from "slugify";
 
 export const createHealthInfo = async (req, res) => {
   try {
-    const { sort_order_no, title, short_desc, content, author, publishedAt, isActive } = req.body;
+    const { sort_order_no, title, content, author, publishedAt, isActive } = req.body;
     let { slug } = req.body;
     slug = slugify(slug || title, { lower: true, strict: true });
 
@@ -23,7 +23,6 @@ export const createHealthInfo = async (req, res) => {
       sort_order_no,
       slug,
       title,
-      short_desc,
       content,
       author,
       publishedAt,
@@ -49,7 +48,7 @@ export const createHealthInfo = async (req, res) => {
 
 export const updateHealthInfo = async (req, res) => {
   try {
-    const { info_id, sort_order_no, title, short_desc, content, author, publishedAt, isActive } = req.body;
+    const { info_id, sort_order_no, title, content, author, publishedAt, isActive } = req.body;
     let { slug } = req.body;
 
     if (!info_id) {
@@ -80,7 +79,6 @@ export const updateHealthInfo = async (req, res) => {
       sort_order_no,
       slug,
       title,
-      short_desc,
       content,
       author,
       publishedAt,
@@ -112,7 +110,7 @@ export const updateHealthInfo = async (req, res) => {
 };
 export const deleteHealthInfo = async (req, res) => {
   try {
-    const { info_id } = req.body;
+    const info_id = req.query.info_id;
     const findData = await healthSchema .findById(info_id);
     if (!findData) {
       return res
@@ -195,6 +193,25 @@ export const getLastSrNo = async (req, res) => {
       .findOne()
       .sort({ sort_order_no: -1 });
     return res.status(200).send({ isSuccess: true, data: lastSortOrderItem });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const updateHealthInfoIsActive = async (req, res) => {
+  try {
+    const info_id = req.params.id;
+    const healthInfo = await healthSchema.findById(info_id);
+    if (!healthInfo) {
+      return res.status(404).send({ message: "healthInfo not found", isSuccess: false });
+    }
+    healthInfo.isActive = !healthInfo.isActive;
+    await healthInfo.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: healthInfo.isActive,
+    });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }

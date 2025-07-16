@@ -2,20 +2,14 @@ import mongoose from "mongoose";
 
 const menuSchema = new mongoose.Schema(
   {
-    sort_order_no: {
+    position: {
       type: Number,
       trim: true,
     },
     parentId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: false,
       ref: "menu",
-      default: "-",
-      index: true,
-    },
-    menuType: {
-      type: String,
-      trim: true,
+      default: null,
       index: true,
     },
     menuName: {
@@ -23,7 +17,7 @@ const menuSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
-    menuURL: {
+    menuUrl: {                  
       type: String,
       trim: true,
       index: true,
@@ -33,7 +27,7 @@ const menuSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
-    metakeyword: {
+    metaKeywords: {               
       type: String,
       trim: true,
       index: true,
@@ -43,16 +37,24 @@ const menuSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
-    subMenuCount: {
-      type: Number,
+    showInHeader: {               
+      type: Boolean,
+      default: true,
+    },
+    showInFooter: {               
+      type: Boolean,
+      default: false,
     },
     isActive: {
       type: Boolean,
-      required: false,
       default: true,
       index: true,
     },
-    subMenu: [],
+    subMenuCount: {
+      type: Number,
+      default: 0,
+    },
+    subMenu: [],                  
   },
   {
     timestamps: true,
