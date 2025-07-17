@@ -13,14 +13,6 @@ const createModelStorage = (modelType) => {
    destination: (req, file, cb) => {
   let uploadDir = path.join(__dirname, `../../public/${modelType}`);
 
-  if (modelType === "speciality") {
-    if (file.fieldname === "image") {
-      uploadDir = path.join(uploadDir, "image");
-    } else if (file.fieldname === "banner") {
-      uploadDir = path.join(uploadDir, "banner");
-    }
-  }
-
   if (modelType === "banner") {
     if (file.fieldname === "desktopImage") {
       uploadDir = path.join(uploadDir, "desktop");
@@ -219,10 +211,7 @@ const uploadSpeciality = multer({
   storage: createModelStorage("speciality"),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: imgFilter,
-}).fields([
-    { name: "image", maxCount: 1 },
-    { name: "banner", maxCount: 1 },
-  ]);
+}).any(); 
 
   const uploadBanner = multer({
   storage: createModelStorage("banner"),

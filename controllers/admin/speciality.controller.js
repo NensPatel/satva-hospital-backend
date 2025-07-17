@@ -3,12 +3,13 @@ import specialitySchema from "../../models/admin/spciality.model.js";
 import { deleteImage } from "../../helpers/common.js";
 import disorderSchema from "../../models/admin/disorder.model.js";
 
+// Create Speciality
 export const createSpeciality = async (req, res) => {
   try {
     const { sort_order_no, title, short_desc, full_desc, isActive } = req.body;
     let { disorders } = req.body;
 
-    // Parse disorders input
+    // Parse disorders
     if (typeof disorders === "string") {
       try {
         disorders = JSON.parse(disorders);
@@ -17,26 +18,21 @@ export const createSpeciality = async (req, res) => {
       }
     }
     if (!Array.isArray(disorders)) disorders = [];
-
     disorders = disorders.filter((d) => mongoose.Types.ObjectId.isValid(d));
-    const validDisorders = await disorderSchema.find({
-      _id: { $in: disorders },
-    });
+
+    const validDisorders = await disorderSchema.find({ _id: { $in: disorders } });
     const validDisorderIds = validDisorders.map((d) => d._id);
 
-    const imageFile = req.files?.image?.[0];
-    const bannerFile = req.files?.banner?.[0];
+    // Only one image now
+    const imageFile = req.files?.find((file) => file.fieldname === "speciality_img");
+    const speciality_img = imageFile ? "public/speciality/" + imageFile.filename : "";
 
-    if (!imageFile || !bannerFile) {
+    if (!imageFile) {
       return res.status(400).json({
-        message: "Both image and banner are required.",
+        message: "Speciality image is required.",
         isSuccess: false,
       });
     }
-
-    const imagePath = "public/speciality/image/" + imageFile.filename;
-    const bannerPath = "public/speciality/banner/" + bannerFile.filename;
-
     const newSpeciality = new specialitySchema({
       sort_order_no,
       title,
@@ -44,8 +40,7 @@ export const createSpeciality = async (req, res) => {
       full_desc,
       disorders: validDisorderIds,
       isActive,
-      image: imagePath,
-      banner: bannerPath,
+      speciality_img,
     });
 
     await newSpeciality.save();
@@ -60,23 +55,15 @@ export const createSpeciality = async (req, res) => {
   }
 };
 
+// Update Speciality
 export const updateSpeciality = async (req, res) => {
   try {
-    const {
-      speciality_id,
-      sort_order_no,
-      title,
-      short_desc,
-      full_desc,
-      isActive,
-    } = req.body;
+    const { speciality_id, sort_order_no, title, short_desc, full_desc, isActive } = req.body;
     let { disorders } = req.body;
 
     const findData = await specialitySchema.findById(speciality_id);
     if (!findData) {
-      return res
-        .status(404)
-        .send({ message: "Data not found!", isSuccess: false });
+      return res.status(404).send({ message: "Data not found!", isSuccess: false });
     }
 
     if (typeof disorders === "string") {
@@ -89,13 +76,10 @@ export const updateSpeciality = async (req, res) => {
     if (!Array.isArray(disorders)) disorders = [];
     disorders = disorders.filter((d) => mongoose.Types.ObjectId.isValid(d));
 
-    const validDisorders = await disorderSchema.find({
-      _id: { $in: disorders },
-    });
+    const validDisorders = await disorderSchema.find({ _id: { $in: disorders } });
     const validDisorderIds = validDisorders.map((d) => d._id);
 
-    const imageFile = req.files?.image?.[0];
-    const bannerFile = req.files?.banner?.[0];
+    const imageFile = req.files?.speciality_img?.[0];
 
     const updateObj = {
       sort_order_no,
@@ -107,20 +91,11 @@ export const updateSpeciality = async (req, res) => {
     };
 
     if (imageFile) {
-      if (findData.image) await deleteImage(findData.image);
-      updateObj.image = "public/speciality/image/" + imageFile.filename;
+      if (findData.speciality_img) await deleteImage(findData.speciality_img);
+      updateObj.speciality_img = "public/speciality/" + imageFile.filename;
     }
 
-    if (bannerFile) {
-      if (findData.banner) await deleteImage(findData.banner);
-      updateObj.banner = "public/speciality/banner/" + bannerFile.filename;
-    }
-
-    const updated = await specialitySchema.findByIdAndUpdate(
-      speciality_id,
-      updateObj,
-      { new: true }
-    );
+    const updated = await specialitySchema.findByIdAndUpdate(speciality_id, updateObj, { new: true });
 
     return res.status(200).send({
       isSuccess: true,
@@ -132,65 +107,55 @@ export const updateSpeciality = async (req, res) => {
   }
 };
 
+// Delete Speciality
 export const deleteSpeciality = async (req, res) => {
   try {
-    const { speciality_id } = req.body;
+    const speciality_id = req.query.speciality_id;
     const findData = await specialitySchema.findById(speciality_id);
     if (!findData) {
-      return res
-        .status(404)
-        .send({ message: "Data not found!", isSuccess: false });
+      return res.status(404).send({ message: "Data not found!", isSuccess: false });
     }
 
-    if (findData.image) await deleteImage(findData.image);
-    if (findData.banner) await deleteImage(findData.banner);
+    if (findData.speciality_img) await deleteImage(findData.speciality_img);
 
     await specialitySchema.findByIdAndDelete(speciality_id);
 
-    return res
-      .status(200)
-      .send({ isSuccess: true, message: "Data deleted successfully." });
+    return res.status(200).send({ isSuccess: true, message: "Data deleted successfully." });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
 
+// Get all Specialities
 export const getAllSpeciality = async (req, res) => {
   try {
-    const getData = await specialitySchema
-      .find()
-      .populate("disorders")
-      .sort({ sort_order_no: 1 });
-    return res
-      .status(200)
-      .send({
-        isSuccess: true,
-        message: "Data listing successfully.",
-        data: getData,
-      });
+    const getData = await specialitySchema.find().populate("disorders").sort({ sort_order_no: 1 });
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Data listing successfully.",
+      data: getData,
+    });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
 
+// Get by ID
 export const getDataById = async (req, res) => {
   try {
     const { speciality_id } = req.body;
-    const getData = await specialitySchema
-      .findById(speciality_id)
-      .populate("disorders");
-    return res
-      .status(200)
-      .send({
-        isSuccess: true,
-        message: "Get data successfully.",
-        data: getData,
-      });
+    const getData = await specialitySchema.findById(speciality_id).populate("disorders");
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Get data successfully.",
+      data: getData,
+    });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
 
+// Pagination
 export const getPaginationData = async (req, res) => {
   try {
     let { page = 1, limit = 10 } = req.body;
@@ -204,6 +169,7 @@ export const getPaginationData = async (req, res) => {
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);
+
     const totalRecords = await specialitySchema.countDocuments();
 
     return res.status(200).send({
@@ -219,21 +185,37 @@ export const getPaginationData = async (req, res) => {
   }
 };
 
+// Get last sort number
 export const getLastSrNo = async (req, res) => {
   try {
-    const lastSortOrderItem = await specialitySchema
-      .findOne()
-      .sort({ sort_order_no: -1 });
-    return res.status(200)
-    .send({ 
-      isSuccess: true, 
-      data: lastSortOrderItem 
+    const lastSortOrderItem = await specialitySchema.findOne().sort({ sort_order_no: -1 });
+    return res.status(200).send({
+      isSuccess: true,
+      data: lastSortOrderItem,
     });
   } catch (error) {
-    return res.status(500)
-    .send({ 
-      message: error.message, 
-      isSuccess: false 
+    return res.status(500).send({
+      message: error.message,
+      isSuccess: false,
     });
+  }
+};
+
+export const updateSpecilityIsActive = async (req, res) => {
+  try {
+    const speciality_id = req.params.id;
+    const speciality = await specialitySchema.findById(speciality_id);
+    if (!speciality) {
+      return res.status(404).send({ message: "speciality not found", isSuccess: false });
+    }
+    speciality.isActive = !speciality.isActive;
+    await speciality.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: speciality.isActive,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };

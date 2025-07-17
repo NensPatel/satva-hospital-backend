@@ -31,4 +31,4 @@ const disorderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("disorders", disorderSchema);
+export default mongoose.model("disorder", disorderSchema);

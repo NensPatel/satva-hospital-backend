@@ -125,7 +125,7 @@ export const updateDisorder = async (req, res) => {
 
 export const deleteDisorder = async (req, res) => {
   try {
-    const { disorder_id } = req.body;
+     const disorder_id = req.query.disorder_id;
     if (!mongoose.Types.ObjectId.isValid(disorder_id)) {
       return res.status(400).send({
         message: "Invalid disorder_id format.",
@@ -237,6 +237,105 @@ export const getDataBySlug = async (req, res) => {
       isSuccess: true,
       message: "Get data successfully.",
       data,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const listDisordersBySpeciality = async (req, res) => {
+  try {
+    const { speciality_id } = req.params;
+    let { page = 1, limit = 10 } = req.query;
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    if (isNaN(page) || page < 1) page = 1;
+    if (isNaN(limit) || limit < 1) limit = 10;
+
+    const skip = (page - 1) * limit;
+
+    const data = await disordersSchema
+      .find({ speciality_id: new mongoose.Types.ObjectId(speciality_id) })
+      .sort({ sort_order_no: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalRecords = await disordersSchema.countDocuments({ speciality_id: new mongoose.Types.ObjectId(speciality_id) });
+
+    res.status(200).send({
+      isSuccess: true,
+      data,
+      currentPage: page,
+      totalPages: Math.ceil(totalRecords / limit),
+      totalRecords,
+      message: "Data fetched successfully."
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const updateDisorderIsActive = async (req, res) => {
+  try {
+    const disorder_id = req.params.id;
+    const disorder = await disordersSchema.findById(disorder_id);
+    if (!disorder) {
+      return res.status(404).send({ message: "disorder not found", isSuccess: false });
+    }
+    disorder.isActive = !disorder.isActive;
+    await disorder.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: disorder.isActive,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const updateDisorderPosition = async (req, res) => {
+  try {
+    const { id, direction } = req.body;
+    const currentItem = await disordersSchema.findById(id);
+    if (!currentItem) {
+      return res.status(404).send({ message: "Disorder not found", isSuccess: false });
+    }
+
+    let swapItem;
+    if (direction === "up") {
+      swapItem = await disordersSchema.findOne({
+        sort_order_no: { $lt: currentItem.sort_order_no },
+        speciality_id: currentItem.speciality_id || null,
+      }).sort({ sort_order_no: -1 });
+    } else if (direction === "down") {
+      swapItem = await disordersSchema.findOne({
+        sort_order_no: { $gt: currentItem.sort_order_no },
+        speciality_id: currentItem.speciality_id || null,
+      }).sort({ sort_order_no: 1 });
+    } else {
+      return res.status(400).send({ message: "Invalid direction", isSuccess: false });
+    }
+
+    if (!swapItem) {
+      return res.status(200).send({
+        isSuccess: false,
+        message: "Cannot move further",
+      });
+    }
+
+    const temp = currentItem.sort_order_no;
+    currentItem.sort_order_no = swapItem.sort_order_no;
+    swapItem.sort_order_no = temp;
+
+    await currentItem.save();
+    await swapItem.save();
+
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Position updated successfully.",
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });

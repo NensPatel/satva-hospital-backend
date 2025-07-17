@@ -13,16 +13,9 @@ export const validateCreate = async (req, res, next) => {
     ).optional()
   }).unknown(true); 
 
-  const { error } = schema.validate(req.body);
+  const { error } = schema.validate(req.body, { abortEarly: false });
   if (error) {
-    return res.status(400).json({ message: error.message, isSuccess: false });
-  }
-
-  if (!req.files?.image?.length || !req.files?.banner?.length) {
-    return res.status(400).json({
-      message: "Both image and banner files are required.",
-      isSuccess: false,
-    });
+    return res.status(400).json({ message: error.details[0].message, isSuccess: false });
   }
   next();
 };

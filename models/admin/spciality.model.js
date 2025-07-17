@@ -27,11 +27,7 @@ const specialitiesSchema = new mongoose.Schema(
       trim: true,
       default: [],
     },
-    image: {
-      type: String,
-      trim: true,
-    },
-    banner: {
+    speciality_img: {
       type: String,
       trim: true,
     },

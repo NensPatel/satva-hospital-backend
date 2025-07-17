@@ -10,7 +10,7 @@ const disorderSectionSchema = new mongoose.Schema(
     },
     disorder_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "disorders",
+      ref: "disorder",
       required: true,
     },
     title: { 
