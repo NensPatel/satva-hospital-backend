@@ -1,4 +1,5 @@
 import doctorSchema from "../../models/admin/ourTeam.model.js";
+import doctorDetailsSchema from "../../models/admin/doctorDetails.model.js"; 
 import { deleteImage } from "../../helpers/common.js";
 import slugify from "slugify";
 
@@ -128,7 +129,7 @@ export const updateTeam = async (req, res) => {
 // Delete team member
 export const deleteTeam = async (req, res) => {
   try {
-    const { doctor_id } = req.body;
+    const doctor_id = req.query.doctor_id;
 
     const findData = await doctorSchema.findById(doctor_id);
     if (!findData) {
@@ -187,13 +188,22 @@ export const getPaginationData = async (req, res) => {
     limit = parseInt(limit);
     const skip = (page - 1) * limit;
 
-    const data = await doctorSchema
+    // Fetch doctors paginated
+    const doctors = await doctorSchema
       .find()
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);
 
     const totalRecords = await doctorSchema.countDocuments();
+
+    // For each doctor, count related doctor details
+    const data = await Promise.all(
+      doctors.map(async (doctor) => {
+        const doctorDetailsCount = await doctorDetailsSchema.countDocuments({ doctor_id: doctor._id });
+        return { ...doctor._doc, doctorDetailsCount };
+      })
+    );
 
     return res.status(200).send({
       isSuccess: true,
@@ -204,9 +214,12 @@ export const getPaginationData = async (req, res) => {
       data,
     });
   } catch (error) {
+    console.error(error);
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+
+
 
 // Get last sort order number
 export const getLastSrNo = async (req, res) => {
@@ -218,15 +231,19 @@ export const getLastSrNo = async (req, res) => {
   }
 };
 
-// Get team member by slug
-export const getDataBySlug = async (req, res) => {
+export const updateTeamIsActive = async (req, res) => {
   try {
-    const { slug } = req.body;
-    const data = await doctorSchema.findOne({ slug });
+    const doctor_id = req.params.id;
+    const team = await doctorSchema.findById(doctor_id);
+    if (!team) {
+      return res.status(404).send({ message: "disorder section not found", isSuccess: false });
+    }
+    team.isActive = !team.isActive;
+    await team.save();
     return res.status(200).send({
       isSuccess: true,
-      message: "Get data successfully.",
-      data,
+      message: "Status updated successfully.",
+      isActive: team.isActive,
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });

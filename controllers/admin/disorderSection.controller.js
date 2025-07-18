@@ -103,7 +103,7 @@ export const updateDisorderSection = async (req, res) => {
 
 export const deleteDisorderSection = async (req, res) => {
   try {
-    const { disorderSection_id } = req.body;
+    const disorderSection_id = req.query.disorderSection_id;
     if (!mongoose.Types.ObjectId.isValid(disorderSection_id)) {
       return res.status(400).send({
         message: "Invalid disorderSection_id format.",
@@ -204,5 +204,105 @@ export const getLastSrNo = async (req, res) => {
     return res.status(200).send({ isSuccess: true, data: lastItem });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const updateDisorderSectionIsActive = async (req, res) => {
+  try {
+    const disorderSection_id = req.params.id;
+    const disorderSection = await disorderSectionsSchema.findById(disorderSection_id);
+    if (!disorderSection) {
+      return res.status(404).send({ message: "disorder section not found", isSuccess: false });
+    }
+    disorderSection.isActive = !disorderSection.isActive;
+    await disorderSection.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: disorderSection.isActive,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const updateDisorderSectionPosition = async (req, res) => {
+  try {
+    const { id, direction } = req.body;
+    const currentItem = await disorderSectionsSchema.findById(id);
+    if (!currentItem) {
+      return res.status(404).send({ message: "Disorder Section not found", isSuccess: false });
+    }
+
+    let swapItem;
+    if (direction === "up") {
+      swapItem = await disorderSectionsSchema.findOne({
+        sort_order_no: { $lt: currentItem.sort_order_no },
+        disorder_id: currentItem.disorder_id || null,
+      }).sort({ sort_order_no: -1 });
+    } else if (direction === "down") {
+      swapItem = await disorderSectionsSchema.findOne({
+        sort_order_no: { $gt: currentItem.sort_order_no },
+        disorder_id: currentItem.disorder_id || null,
+      }).sort({ sort_order_no: 1 });
+    } else {
+      return res.status(400).send({ message: "Invalid direction", isSuccess: false });
+    }
+
+    if (!swapItem) {
+      return res.status(200).send({
+        isSuccess: false,
+        message: "Cannot move further",
+      });
+    }
+
+    const temp = currentItem.sort_order_no;
+    currentItem.sort_order_no = swapItem.sort_order_no;
+    swapItem.sort_order_no = temp;
+
+    await currentItem.save();
+    await swapItem.save();
+
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Position updated successfully.",
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+
+export const disorderSectionByDisorder = async (req, res) => {
+  try {
+    const { disorder_id } = req.params;
+    let { page = 1, limit = 10 } = req.query;
+
+    if (!disorder_id || !mongoose.Types.ObjectId.isValid(disorder_id)) {
+      return res.status(400).json({ isSuccess: false, message: "Valid disorder_id is required" });
+    }
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+    const skip = (page - 1) * limit;
+
+    const sections = await disorderSectionsSchema.find({ disorder_id: new mongoose.Types.ObjectId(disorder_id) })
+      .sort({ sort_order_no: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalCount = await disorderSectionsSchema.countDocuments({ disorder_id: new mongoose.Types.ObjectId(disorder_id) });
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return res.status(200).json({
+      isSuccess: true,
+      message: "Sections fetched successfully",
+      data: sections,
+      totalPages,
+      totalCount
+    });
+  } catch (error) {
+    console.error("Error fetching sections:", error);
+    return res.status(500).json({ isSuccess: false, message: "Server error" });
   }
 };

@@ -14,16 +14,23 @@ import {
   getDataById,
   getAllDisorderSections,
   getLastSrNo,
+  updateDisorderSectionIsActive,
+  updateDisorderSectionPosition,
+  disorderSectionByDisorder
+
 } from "../../controllers/admin/disorderSection.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
 
 router.post("/createDisorderSection", verifyTokenAdmin, validateCreate, createDisorderSection);
-router.post("/updateDisorderSection", verifyTokenAdmin, validateUpdate, updateDisorderSection);
-router.post("/deleteDisorderSection", verifyTokenAdmin, deleteDisorderSection);
+router.put("/updateDisorderSection", verifyTokenAdmin, validateUpdate, updateDisorderSection);
+router.post("/updateDisorderSectionIsActive/:id", verifyTokenAdmin, updateDisorderSectionIsActive);
+router.put("/updateDisorderSectionPosition", verifyTokenAdmin, updateDisorderSectionPosition);
+router.delete("/deleteDisorderSection", verifyTokenAdmin, deleteDisorderSection);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
+router.get("/disorderSectionByDisorder/:disorder_id", verifyTokenAdmin, disorderSectionByDisorder);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
-router.post("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
 
 router.post("/getAllDisorderSections", getAllDisorderSections);
 

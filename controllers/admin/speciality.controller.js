@@ -163,14 +163,22 @@ export const getPaginationData = async (req, res) => {
     limit = parseInt(limit);
     const skip = (page - 1) * limit;
 
-    const getData = await specialitySchema
+    // Get specialities
+    const specialities = await specialitySchema
       .find()
-      .populate("disorders")
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);
 
     const totalRecords = await specialitySchema.countDocuments();
+
+    // For each speciality, count its disorders
+    const data = await Promise.all(
+      specialities.map(async (speciality) => {
+        const disorderCount = await disorderSchema.countDocuments({ speciality_id: speciality._id });
+        return { ...speciality._doc, disorderCount };
+      })
+    );
 
     return res.status(200).send({
       isSuccess: true,
@@ -178,12 +186,13 @@ export const getPaginationData = async (req, res) => {
       totalPages: Math.ceil(totalRecords / limit),
       totalRecords,
       message: "Data listing successfully.",
-      data: getData,
+      data,
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+
 
 // Get last sort number
 export const getLastSrNo = async (req, res) => {
