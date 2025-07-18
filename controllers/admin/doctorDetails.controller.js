@@ -102,7 +102,7 @@ export const updateDoctorDetails = async (req, res) => {
 
 export const deleteDoctorDetails = async (req, res) => {
   try {
-    const { doctorDetails_id } = req.body;
+    const doctorDetails_id = req.query.doctorDetails_id;
     if (!mongoose.Types.ObjectId.isValid(doctorDetails_id)) {
       return res.status(400).send({
         message: "Invalid doctorDetails_id format.",
@@ -203,5 +203,105 @@ export const getLastSrNo = async (req, res) => {
     return res.status(200).send({ isSuccess: true, data: lastItem });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const updateDoctorDetailsIsActive = async (req, res) => {
+  try {
+    const doctorDetails_id = req.params.id;
+    const details = await doctordetailSchema.findById(doctorDetails_id);
+    if (!details) {
+      return res.status(404).send({ message: "disorder section not found", isSuccess: false });
+    }
+    details.isActive = !details.isActive;
+    await details.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: details.isActive,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const updateDoctorDetailsPosition = async (req, res) => {
+  try {
+    const { id, direction } = req.body;
+    const currentItem = await doctordetailSchema.findById(id);
+    if (!currentItem) {
+      return res.status(404).send({ message: "Doctor Details not found", isSuccess: false });
+    }
+
+    let swapItem;
+    if (direction === "up") {
+      swapItem = await doctordetailSchema.findOne({
+        sort_order_no: { $lt: currentItem.sort_order_no },
+        doctor_id: currentItem.doctor_id || null,
+      }).sort({ sort_order_no: -1 });
+    } else if (direction === "down") {
+      swapItem = await doctordetailSchema.findOne({
+        sort_order_no: { $gt: currentItem.sort_order_no },
+        doctor_id: currentItem.doctor_id || null,
+      }).sort({ sort_order_no: 1 });
+    } else {
+      return res.status(400).send({ message: "Invalid direction", isSuccess: false });
+    }
+
+    if (!swapItem) {
+      return res.status(200).send({
+        isSuccess: false,
+        message: "Cannot move further",
+      });
+    }
+
+    const temp = currentItem.sort_order_no;
+    currentItem.sort_order_no = swapItem.sort_order_no;
+    swapItem.sort_order_no = temp;
+
+    await currentItem.save();
+    await swapItem.save();
+
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Position updated successfully.",
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+
+export const doctorDetailsByDoctor = async (req, res) => {
+  try {
+    const { doctor_id } = req.params;
+    let { page = 1, limit = 10 } = req.query;
+
+    if (!doctor_id || !mongoose.Types.ObjectId.isValid(doctor_id)) {
+      return res.status(400).json({ isSuccess: false, message: "Valid doctor_id is required" });
+    }
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+    const skip = (page - 1) * limit;
+
+    const sections = await doctordetailSchema.find({ doctor_id: new mongoose.Types.ObjectId(doctor_id) })
+      .sort({ sort_order_no: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalCount = await doctordetailSchema.countDocuments({ doctor_id: new mongoose.Types.ObjectId(doctor_id) });
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return res.status(200).json({
+      isSuccess: true,
+      message: "Details fetched successfully",
+      data: sections,
+      totalPages,
+      totalCount
+    });
+  } catch (error) {
+    console.error("Error fetching sections:", error);
+    return res.status(500).json({ isSuccess: false, message: "Server error" });
   }
 };

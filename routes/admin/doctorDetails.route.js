@@ -14,16 +14,22 @@ import {
   getDataById,
   getAllDoctorDetails,
   getLastSrNo,
+  updateDoctorDetailsIsActive,
+  updateDoctorDetailsPosition,
+  doctorDetailsByDoctor
 } from "../../controllers/admin/doctorDetails.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
 
 router.post("/createDoctorDetails", verifyTokenAdmin, validateCreate, createDoctorDetails);
-router.post("/updateDoctorDetails", verifyTokenAdmin, validateUpdate, updateDoctorDetails);
-router.post("/deleteDoctorDetails", verifyTokenAdmin, deleteDoctorDetails);
+router.put("/updateDoctorDetails", verifyTokenAdmin, validateUpdate, updateDoctorDetails);
+router.post("/updateDoctorDetailsIsActive/:id", verifyTokenAdmin, updateDoctorDetailsIsActive);
+router.put("/updateDoctorDetailsPosition", verifyTokenAdmin, updateDoctorDetailsPosition);
+router.delete("/deleteDoctorDetails", verifyTokenAdmin, deleteDoctorDetails);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
+router.get("/doctorDetailsByDoctor/:doctor_id", verifyTokenAdmin, doctorDetailsByDoctor);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
-router.post("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
 
 router.post("/getAllDoctorDetails", getAllDoctorDetails);
 
