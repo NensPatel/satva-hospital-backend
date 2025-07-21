@@ -84,7 +84,7 @@ export const updateCounters = async (req, res) => {
 
 export const deleteCounters = async (req, res) => {
   try {
-    const { counter_id } = req.body;
+    const counter_id = req.query.counter_id;
     const findData = await countersSchema.findById(counter_id);
     if (!findData) {
       return res
@@ -167,6 +167,25 @@ export const getLastSrNo = async (req, res) => {
       .findOne()
       .sort({ sort_order_no: -1 });
     return res.status(200).send({ isSuccess: true, data: lastSortOrderItem });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const updateCounterIsActive = async (req, res) => {
+  try {
+    const counter_id = req.params.id;
+    const counters = await countersSchema.findById(counter_id);
+    if (!counters) {
+      return res.status(404).send({ message: "counters not found", isSuccess: false });
+    }
+    counters.isActive = !counters.isActive;
+    await counters.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: counters.isActive,
+    });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }

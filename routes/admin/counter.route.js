@@ -14,17 +14,19 @@ import {
   getDataById,
   getAllCounters,
   getLastSrNo,
+  updateCounterIsActive
 } from "../../controllers/admin/counter.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
 import { uploadCounter } from "../../middleware/admin/upload.js";
 
 router.post("/createCounters", verifyTokenAdmin, uploadCounter, validateCreate, createCounters);
-router.post("/updateCounters", verifyTokenAdmin, uploadCounter, validateUpdate, updateCounters);
-router.post("/deleteCounters", verifyTokenAdmin, deleteCounters);
+router.put("/updateCounters", verifyTokenAdmin, uploadCounter, validateUpdate, updateCounters);
+router.get("/updateCounterIsActive/:id", verifyTokenAdmin, updateCounterIsActive);
+router.delete("/deleteCounters", verifyTokenAdmin, deleteCounters);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
-router.post("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
 router.post("/getAllCounters", getAllCounters);
 
 export default router;

@@ -17,7 +17,7 @@ export const validateCreate = async (req, res, next) => {
 
 export const validateUpdate = async (req, res, next) => {
   const schema = Joi.object({
-    counter_id: Joi.string().length(24).required(),
+    coreServices_id: Joi.string().length(24).required(),
     sort_order_no: Joi.number().required(),
     label: Joi.string().min(2).max(50).required(),
     short_desc: Joi.string().required(),

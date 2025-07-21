@@ -83,7 +83,7 @@ export const updateCoreService = async (req, res) => {
 
 export const deleteCoreService = async (req, res) => {
   try {
-    const { coreServices_id } = req.body;
+    const coreServices_id = req.query.coreServices_id;
     const findData = await coreServiceSchema.findById(coreServices_id);
     if (!findData) {
       return res
@@ -166,6 +166,25 @@ export const getLastSrNo = async (req, res) => {
       .findOne()
       .sort({ sort_order_no: -1 });
     return res.status(200).send({ isSuccess: true, data: lastSortOrderItem });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const updateCoreServiceIsActive = async (req, res) => {
+  try {
+    const coreServices_id = req.params.id;
+    const coreServices = await coreServiceSchema.findById(coreServices_id);
+    if (!coreServices) {
+      return res.status(404).send({ message: "core services not found", isSuccess: false });
+    }
+    coreServices.isActive = !coreServices.isActive;
+    await coreServices.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: coreServices.isActive,
+    });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
