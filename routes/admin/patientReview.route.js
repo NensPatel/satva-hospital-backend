@@ -14,16 +14,18 @@ import {
   getDataById,
   getAllPatientReview,
   getLastSrNo,
+  updatePatientReviewIsActive
 } from "../../controllers/admin/patientReviews.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
 
 router.post("/createPatientReview", verifyTokenAdmin, validateCreate, createPatientReview);
-router.post("/updatePatientReview", verifyTokenAdmin, validateUpdate, updatePatientReview);
-router.post("/deletePatientReview", verifyTokenAdmin, deletePatientReview);
+router.put("/updatePatientReview", verifyTokenAdmin, validateUpdate, updatePatientReview);
+router.get("/updatePatientReviewIsActive/:id", verifyTokenAdmin, updatePatientReviewIsActive);
+router.delete("/deletePatientReview", verifyTokenAdmin, deletePatientReview);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
-router.post("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
 router.post("/getAllPatientReview", getAllPatientReview);
 
 export default router;

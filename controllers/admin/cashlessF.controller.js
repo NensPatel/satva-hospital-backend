@@ -83,7 +83,7 @@ export const updateCashlessFacility = async (req, res) => {
 
 export const deleteCashlessFacility = async (req, res) => {
   try {
-    const { cashless_id } = req.body;
+   const cashless_id = req.query.cashless_id;
     const findData = await cashlessSchema.findById(cashless_id);
     if (!findData) {
       return res
@@ -166,6 +166,24 @@ export const getLastSrNo = async (req, res) => {
       .findOne()
       .sort({ sort_order_no: -1 });
     return res.status(200).send({ isSuccess: true, data: lastSortOrderItem });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+export const updateCashlessFacilitiesIsActive = async (req, res) => {
+  try {
+    const cashless_id = req.params.id;
+    const cashless = await cashlessSchema.findById(cashless_id);
+    if (!cashless) {
+      return res.status(404).send({ message: "Cashless facility not found", isSuccess: false });
+    }
+    cashless.isActive = !cashless.isActive;
+    await cashless.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: cashless.isActive,
+    });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }

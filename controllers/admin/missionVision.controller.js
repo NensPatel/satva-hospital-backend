@@ -81,9 +81,10 @@ export const updateMissionVision = async (req, res) => {
   }
 };
 
+
 export const deleteMissionVision = async (req, res) => {
   try {
-    const { mission_vision_id } = req.body;
+    const mission_vision_id = req.query.mission_vision_id;
     const findData = await missionViSchema.findById(mission_vision_id);
     if (!findData) {
       return res
@@ -171,3 +172,21 @@ export const getLastSrNo = async (req, res) => {
   }
 };
    
+export const updateMissionVisionIsActive = async (req, res) => {
+  try {
+    const mission_vision_id = req.params.id;
+    const missionVision = await missionViSchema.findById(mission_vision_id);
+    if (!missionVision) {
+      return res.status(404).send({ message: "Mission Vision not found", isSuccess: false });
+    }
+    missionVision.isActive = !missionVision.isActive;
+    await missionVision.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: missionVision.isActive,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};

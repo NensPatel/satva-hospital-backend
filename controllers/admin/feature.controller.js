@@ -83,7 +83,7 @@ export const updateFeature = async (req, res) => {
 
 export const deleteFeature = async (req, res) => {
   try {
-    const { feature_id } = req.body;
+    const feature_id = req.query.feature_id;
     const findData = await featuresSchema.findById(feature_id);
     if (!findData) {
       return res
@@ -170,3 +170,23 @@ export const getLastSrNo = async (req, res) => {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+export const updateFeatureIsActive = async (req, res) => {
+  try {
+    const feature_id = req.params.id;
+    const feature = await featuresSchema.findById(feature_id);
+    if (!feature) {
+      return res.status(404).send({ message: "Feature not found", isSuccess: false });
+    }
+    feature.isActive = !feature.isActive;
+    await feature.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: feature.isActive,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+    

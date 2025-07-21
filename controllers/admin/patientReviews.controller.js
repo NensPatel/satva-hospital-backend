@@ -62,7 +62,7 @@ export const updatePatientReview = async (req, res) => {
 
 export const deletePatientReview = async (req, res) => {
   try {
-    const { review_id } = req.body;
+    const review_id = req.query.review_id;
     const findData = await patientRSchema.findById(review_id);
     if (!findData) {
       return res
@@ -141,6 +141,25 @@ export const getLastSrNo = async (req, res) => {
       .findOne()
       .sort({ sort_order_no: -1 });
     return res.status(200).send({ isSuccess: true, data: lastSortOrderItem });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const updatePatientReviewIsActive = async (req, res) => {
+  try {
+    const review_id = req.params.id;
+    const review = await patientRSchema.findById(review_id);
+    if (!review) {
+      return res.status(404).send({ message: "Review not found", isSuccess: false });
+    }
+    review.isActive = !review.isActive;
+    await review.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: review.isActive,
+    });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
