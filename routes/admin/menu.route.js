@@ -30,7 +30,7 @@ router.post("/createMenu", verifyTokenAdmin, validateCreate, createMenu);
 router.put("/updateMenu", verifyTokenAdmin, validateUpdate, updateMenu);
 
 // Toggle isActive
-router.get('/updateMenuIsActive/:id', verifyTokenAdmin, updateMenuIsActive);
+router.post('/updateMenuIsActive/:id', verifyTokenAdmin, updateMenuIsActive);
 
 // Change position
 router.put('/updateMenuPosition', verifyTokenAdmin, updateMenuPosition);
