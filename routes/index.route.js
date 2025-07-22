@@ -19,6 +19,7 @@ import aboutRoute from "./admin/about.route.js";
 import missionvisionRoute from "./admin/missionVision.route.js";
 import menuRoute from "./admin/menu.route.js";
 import bannerRoute from "./admin/banner.route.js";
+import websiteSetting from "./admin/websiteSetting.route.js";
 
 const router = express.Router();
 
@@ -42,5 +43,6 @@ router.use("/about", aboutRoute);
 router.use("/missionVision", missionvisionRoute);
 router.use("/menu", menuRoute);
 router.use("/banner", bannerRoute);
+router.use("/websiteSetting", websiteSetting);
 
 export default router;

@@ -16,15 +16,32 @@ export const createBanner = async (req, res) => {
     const desktopFile = req.files?.desktopImage?.[0];
     const mobileFile = req.files?.mobileImage?.[0];
 
-    if (!desktopFile || !mobileFile) {
+    // Validate required files based on bannerType
+    if (bannerType === "image") {
+      if (!desktopFile || !desktopFile.mimetype.startsWith("image/") ||
+          !mobileFile || !mobileFile.mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          message: "Desktop and mobile images are required and must be images.",
+          isSuccess: false,
+        });
+      }
+    } else if (bannerType === "video") {
+      if (!desktopFile || !desktopFile.mimetype.startsWith("video/") ||
+          !mobileFile || !mobileFile.mimetype.startsWith("video/")) {
+        return res.status(400).json({
+          message: "Desktop and mobile videos are required and must be videos.",
+          isSuccess: false,
+        });
+      }
+    } else {
       return res.status(400).json({
-        message: "Both desktop and mobile images are required.",
+        message: "Invalid banner type. Must be 'image' or 'video'.",
         isSuccess: false,
       });
     }
 
-    const desktopImage = "public/banner/desktop/" + desktopFile.filename;
-    const mobileImage = "public/banner/mobile/" + mobileFile.filename;
+    const desktopPath = "public/banner/desktop/" + desktopFile.filename;
+    const mobilePath = "public/banner/mobile/" + mobileFile.filename;
 
     const newBanner = new bannersSchema({
       sort_order_no,
@@ -34,8 +51,8 @@ export const createBanner = async (req, res) => {
       bannerLink,
       description,
       isActive,
-      desktopImage,
-      mobileImage,
+      desktopImage: desktopPath,
+      mobileImage: mobilePath,
     });
 
     await newBanner.save();
@@ -46,9 +63,11 @@ export const createBanner = async (req, res) => {
       data: newBanner,
     });
   } catch (error) {
+    console.error("Error in createBanner:", error);
     return res.status(500).json({ message: error.message, isSuccess: false });
   }
 };
+
 
 export const updateBanner = async (req, res) => {
   try {
@@ -68,6 +87,33 @@ export const updateBanner = async (req, res) => {
       return res.status(404).json({ message: "Data not found!", isSuccess: false });
     }
 
+    const desktopFile = req.files?.desktopImage?.[0];
+    const mobileFile = req.files?.mobileImage?.[0];
+
+    // Validate uploaded files based on bannerType
+    if (bannerType === "image") {
+      if ((desktopFile && !desktopFile.mimetype.startsWith("image/")) ||
+          (mobileFile && !mobileFile.mimetype.startsWith("image/"))) {
+        return res.status(400).json({
+          message: "Uploaded files must be images.",
+          isSuccess: false,
+        });
+      }
+    } else if (bannerType === "video") {
+      if ((desktopFile && !desktopFile.mimetype.startsWith("video/")) ||
+          (mobileFile && !mobileFile.mimetype.startsWith("video/"))) {
+        return res.status(400).json({
+          message: "Uploaded files must be videos.",
+          isSuccess: false,
+        });
+      }
+    } else {
+      return res.status(400).json({
+        message: "Invalid banner type. Must be 'image' or 'video'.",
+        isSuccess: false,
+      });
+    }
+
     const updateObj = {
       sort_order_no,
       menuId,
@@ -78,13 +124,11 @@ export const updateBanner = async (req, res) => {
       isActive,
     };
 
-    const desktopFile = req.files?.desktopImage?.[0];
     if (desktopFile) {
       if (findData.desktopImage) await deleteImage(findData.desktopImage);
       updateObj.desktopImage = "public/banner/desktop/" + desktopFile.filename;
     }
 
-    const mobileFile = req.files?.mobileImage?.[0];
     if (mobileFile) {
       if (findData.mobileImage) await deleteImage(findData.mobileImage);
       updateObj.mobileImage = "public/banner/mobile/" + mobileFile.filename;
@@ -98,6 +142,7 @@ export const updateBanner = async (req, res) => {
       data: updated,
     });
   } catch (error) {
+    console.error("Error in updateBanner:", error);
     return res.status(500).json({ message: error.message, isSuccess: false });
   }
 };
@@ -105,11 +150,13 @@ export const updateBanner = async (req, res) => {
 
 export const deleteBanner = async (req, res) => {
   try {
-    const { banner_id } = req.body;
+      const banner_id = req.query.banner_id;
 
     const findData = await bannersSchema.findById(banner_id);
     if (!findData) {
-      return res.status(404).json({ message: "Data not found!", isSuccess: false });
+      return res
+        .status(404)
+        .json({ message: "Data not found!", isSuccess: false });
     }
 
     if (findData.desktopImage) await deleteImage(findData.desktopImage);
@@ -162,6 +209,7 @@ export const getPaginationData = async (req, res) => {
 
     const data = await bannersSchema
       .find()
+      .populate("menuId", "menuName")
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);
@@ -189,5 +237,26 @@ export const getLastSrNo = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({ message: error.message, isSuccess: false });
+  }
+};
+
+export const updateBannerIsActive = async (req, res) => {
+  try {
+    const banner_id = req.params.id;
+    const banner = await bannersSchema.findById(banner_id);
+    if (!banner) {
+      return res
+        .status(404)
+        .send({ message: "Banner not found", isSuccess: false });
+    }
+    banner.isActive = !banner.isActive;
+    await banner.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: banner.isActive,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };

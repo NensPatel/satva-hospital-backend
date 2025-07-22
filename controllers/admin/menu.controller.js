@@ -308,7 +308,7 @@ export const updateMenuPosition = async (req, res) => {
 // Get all menus without pagination
 export const getMenuWithoutPagination = async (req, res) => {
   try {
-    const menus = await menusSchema.find().select("_id parentId position");
+    const menus = await menusSchema.find().select("_id parentId menuName position");
     return res.status(200).send({
       isSuccess: true,
       data: menus,

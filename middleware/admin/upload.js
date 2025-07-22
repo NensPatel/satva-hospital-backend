@@ -21,6 +21,14 @@ const createModelStorage = (modelType) => {
     }
   }
 
+ if (modelType === "websiteSetting") {
+    if (file.fieldname === "headerLogo") {
+      uploadDir = path.join(uploadDir, "header");
+    } else if (file.fieldname === "footerLogo") {
+      uploadDir = path.join(uploadDir, "footer");
+    }
+  }
+
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
@@ -46,10 +54,21 @@ const createModelStorage = (modelType) => {
         }
       }
 
+       if (modelType === "websiteSetting") {
+  if (file.fieldname === "headerLogo") {
+    storedPath = `public/${modelType}/header/${filename}`;
+  } else if (file.fieldname === "footerLogo") {
+    storedPath = `public/${modelType}/footer/${filename}`;
+  }
+}
+
 
       // Optionally attach to req.body for later use
-      if (file.fieldname === "image") {
-        req.body.image = storedPath;
+      if (file.fieldname === "headerLogo") {
+        req.body.headerLogo = storedPath;
+      }
+      if (file.fieldname === "footerLogo") {
+        req.body.footerLogo = storedPath;
       }
       if (file.fieldname === "banner") {
         req.body.banner = storedPath;
@@ -220,7 +239,16 @@ const uploadSpeciality = multer({
 }).fields([
   { name: "desktopImage", maxCount: 1 },
   { name: "mobileImage", maxCount: 1 },
-])
+]);
+
+const uploadWebsiteSetting = multer({
+  storage: createModelStorage("websiteSetting"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imgAndDocFilter,
+}).fields([
+  { name: "headerLogo", maxCount: 1 },
+  { name: "footerLogo", maxCount: 1 },
+]);
 
 
 // Exports
@@ -237,6 +265,7 @@ export {
   uploadAboutUs,
   uploadMissionVisions,
   uploadBanner,
+  uploadWebsiteSetting,
   uploadDocuments,
   imgFilter,
   docFilter,
