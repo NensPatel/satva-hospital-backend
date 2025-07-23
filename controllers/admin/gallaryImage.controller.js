@@ -17,7 +17,7 @@ export const createGalleryImage = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "gallary_image");
-    const gallary_image = imageFile ? "gallery/" + imageFile.filename : "";
+    const gallary_image = imageFile ? "public/gallery/" + imageFile.filename : "";
 
     const createObj = {
       sort_order_no,
@@ -62,7 +62,7 @@ export const updateGalleryImage = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "gallary_image");
-    const gallary_image = imageFile ? "gallery/" + imageFile.filename : "";
+    const gallary_image = imageFile ? "public/gallery/" + imageFile.filename : "";
 
     const updateObj = {
       sort_order_no,
