@@ -258,6 +258,25 @@ export const updateMenuIsActive = async (req, res) => {
   }
 };
 
+export const updateSubMenuIsActive = async (req, res) => {
+  try {
+    const menu_id = req.params.id;
+    const menu = await menusSchema.findById(menu_id);
+    if (!menu) {
+      return res.status(404).send({ message: "Menu not found", isSuccess: false });
+    }
+    menu.isActive = !menu.isActive;
+    await menu.save();
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Status updated successfully.",
+      isActive: menu.isActive,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
 // Update Menu Position
 export const updateMenuPosition = async (req, res) => {
   try {

@@ -18,7 +18,8 @@ import {
   updateMenuIsActive,
   updateMenuPosition,
   getMenuWithoutPagination,
-  getMenusByParentId
+  getMenusByParentId,
+  updateSubMenuIsActive
 } from "../../controllers/admin/menu.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
@@ -31,6 +32,7 @@ router.put("/updateMenu", verifyTokenAdmin, validateUpdate, updateMenu);
 
 // Toggle isActive
 router.post('/updateMenuIsActive/:id', verifyTokenAdmin, updateMenuIsActive);
+router.post('/updateSubMenuIsActive/:id', verifyTokenAdmin, updateSubMenuIsActive);
 
 // Change position
 router.put('/updateMenuPosition', verifyTokenAdmin, updateMenuPosition);

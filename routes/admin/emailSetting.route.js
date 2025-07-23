@@ -8,7 +8,7 @@ import { emailSettingsValidator } from "../../validation/admin/emailSetting.vali
 
 const router = express.Router();
 
-router.post("/updateEmailSettings", verifyTokenAdmin, emailSettingsValidator, updateEmailSettings);
+router.put("/updateEmailSettings", verifyTokenAdmin, emailSettingsValidator, updateEmailSettings);
 router.get("/getEmailSettings", getEmailSettings);
 
 export default router;

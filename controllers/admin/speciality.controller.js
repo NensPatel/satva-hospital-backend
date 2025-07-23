@@ -20,12 +20,18 @@ export const createSpeciality = async (req, res) => {
     if (!Array.isArray(disorders)) disorders = [];
     disorders = disorders.filter((d) => mongoose.Types.ObjectId.isValid(d));
 
-    const validDisorders = await disorderSchema.find({ _id: { $in: disorders } });
+    const validDisorders = await disorderSchema.find({
+      _id: { $in: disorders },
+    });
     const validDisorderIds = validDisorders.map((d) => d._id);
 
     // Only one image now
-    const imageFile = req.files?.find((file) => file.fieldname === "speciality_img");
-    const speciality_img = imageFile ? "public/speciality/" + imageFile.filename : "";
+    const imageFile = req.files?.find(
+      (file) => file.fieldname === "speciality_img"
+    );
+    const speciality_img = imageFile
+      ? "public/speciality/" + imageFile.filename
+      : "";
 
     if (!imageFile) {
       return res.status(400).json({
@@ -58,12 +64,21 @@ export const createSpeciality = async (req, res) => {
 // Update Speciality
 export const updateSpeciality = async (req, res) => {
   try {
-    const { speciality_id, sort_order_no, title, short_desc, full_desc, isActive } = req.body;
+    const {
+      speciality_id,
+      sort_order_no,
+      title,
+      short_desc,
+      full_desc,
+      isActive,
+    } = req.body;
     let { disorders } = req.body;
 
     const findData = await specialitySchema.findById(speciality_id);
     if (!findData) {
-      return res.status(404).send({ message: "Data not found!", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Data not found!", isSuccess: false });
     }
 
     if (typeof disorders === "string") {
@@ -76,10 +91,17 @@ export const updateSpeciality = async (req, res) => {
     if (!Array.isArray(disorders)) disorders = [];
     disorders = disorders.filter((d) => mongoose.Types.ObjectId.isValid(d));
 
-    const validDisorders = await disorderSchema.find({ _id: { $in: disorders } });
+    const validDisorders = await disorderSchema.find({
+      _id: { $in: disorders },
+    });
     const validDisorderIds = validDisorders.map((d) => d._id);
 
-    const imageFile = req.files?.speciality_img?.[0];
+    let imageFile;
+    if (Array.isArray(req.files)) {
+      imageFile = req.files.find((file) => file.fieldname === "speciality_img");
+    } else if (req.files?.speciality_img) {
+      imageFile = req.files.speciality_img[0];
+    }
 
     const updateObj = {
       sort_order_no,
@@ -95,7 +117,11 @@ export const updateSpeciality = async (req, res) => {
       updateObj.speciality_img = "public/speciality/" + imageFile.filename;
     }
 
-    const updated = await specialitySchema.findByIdAndUpdate(speciality_id, updateObj, { new: true });
+    const updated = await specialitySchema.findByIdAndUpdate(
+      speciality_id,
+      updateObj,
+      { new: true }
+    );
 
     return res.status(200).send({
       isSuccess: true,
@@ -113,14 +139,18 @@ export const deleteSpeciality = async (req, res) => {
     const speciality_id = req.query.speciality_id;
     const findData = await specialitySchema.findById(speciality_id);
     if (!findData) {
-      return res.status(404).send({ message: "Data not found!", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Data not found!", isSuccess: false });
     }
 
     if (findData.speciality_img) await deleteImage(findData.speciality_img);
 
     await specialitySchema.findByIdAndDelete(speciality_id);
 
-    return res.status(200).send({ isSuccess: true, message: "Data deleted successfully." });
+    return res
+      .status(200)
+      .send({ isSuccess: true, message: "Data deleted successfully." });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
@@ -129,7 +159,10 @@ export const deleteSpeciality = async (req, res) => {
 // Get all Specialities
 export const getAllSpeciality = async (req, res) => {
   try {
-    const getData = await specialitySchema.find().populate("disorders").sort({ sort_order_no: 1 });
+    const getData = await specialitySchema
+      .find()
+      .populate("disorders")
+      .sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -144,7 +177,9 @@ export const getAllSpeciality = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { speciality_id } = req.body;
-    const getData = await specialitySchema.findById(speciality_id).populate("disorders");
+    const getData = await specialitySchema
+      .findById(speciality_id)
+      .populate("disorders");
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",
@@ -175,7 +210,9 @@ export const getPaginationData = async (req, res) => {
     // For each speciality, count its disorders
     const data = await Promise.all(
       specialities.map(async (speciality) => {
-        const disorderCount = await disorderSchema.countDocuments({ speciality_id: speciality._id });
+        const disorderCount = await disorderSchema.countDocuments({
+          speciality_id: speciality._id,
+        });
         return { ...speciality._doc, disorderCount };
       })
     );
@@ -193,11 +230,12 @@ export const getPaginationData = async (req, res) => {
   }
 };
 
-
 // Get last sort number
 export const getLastSrNo = async (req, res) => {
   try {
-    const lastSortOrderItem = await specialitySchema.findOne().sort({ sort_order_no: -1 });
+    const lastSortOrderItem = await specialitySchema
+      .findOne()
+      .sort({ sort_order_no: -1 });
     return res.status(200).send({
       isSuccess: true,
       data: lastSortOrderItem,
@@ -215,7 +253,9 @@ export const updateSpecilityIsActive = async (req, res) => {
     const speciality_id = req.params.id;
     const speciality = await specialitySchema.findById(speciality_id);
     if (!speciality) {
-      return res.status(404).send({ message: "speciality not found", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "speciality not found", isSuccess: false });
     }
     speciality.isActive = !speciality.isActive;
     await speciality.save();

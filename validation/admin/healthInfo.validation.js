@@ -9,7 +9,6 @@ export const validateCreate = async (req, res, next) => {
     short_desc: Joi.string().allow("").optional(),
     content: Joi.string().allow("").optional(),
     author: Joi.string().allow("").optional(),
-    publishedAt: Joi.date().iso().optional(),
     isActive: Joi.boolean().optional(),
   });
 
@@ -30,7 +29,6 @@ export const validateUpdate = async (req, res, next) => {
     short_desc: Joi.string().allow("").optional(),
     content: Joi.string().allow("").optional(),
     author: Joi.string().allow("").optional(),
-    publishedAt: Joi.date().iso().optional(),
     isActive: Joi.boolean().optional(),
   });
 
