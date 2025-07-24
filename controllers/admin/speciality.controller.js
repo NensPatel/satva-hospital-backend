@@ -30,7 +30,7 @@ export const createSpeciality = async (req, res) => {
       (file) => file.fieldname === "speciality_img"
     );
     const speciality_img = imageFile
-      ? "public/speciality/" + imageFile.filename
+      ? "speciality/" + imageFile.filename
       : "";
 
     if (!imageFile) {
@@ -112,9 +112,11 @@ export const updateSpeciality = async (req, res) => {
       isActive,
     };
 
+     if (imageFile && findData.speciality_img) {
+      await deleteImage(findData.speciality_img);
+    }
     if (imageFile) {
-      if (findData.speciality_img) await deleteImage(findData.speciality_img);
-      updateObj.speciality_img = "public/speciality/" + imageFile.filename;
+      updateObj.speciality_img = "speciality/" + imageFile.filename;
     }
 
     const updated = await specialitySchema.findByIdAndUpdate(
@@ -144,8 +146,9 @@ export const deleteSpeciality = async (req, res) => {
         .send({ message: "Data not found!", isSuccess: false });
     }
 
-    if (findData.speciality_img) await deleteImage(findData.speciality_img);
-
+    if (findData.speciality_img) {
+      await deleteImage(findData.speciality_img);
+    }
     await specialitySchema.findByIdAndDelete(speciality_id);
 
     return res

@@ -5,7 +5,7 @@ export const createCoreService = async (req, res) => {
   try {
     const { sort_order_no, short_desc, label, isActive } = req.body;
     const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/coreServices/" + imageFile.filename : "";
+    const icon = imageFile ? "coreServices/" + imageFile.filename : "";
 
     const createObj = {
       sort_order_no,
@@ -45,7 +45,7 @@ export const updateCoreService = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/coreServices/" + imageFile.filename : "";
+    const icon = imageFile ? "coreServices/" + imageFile.filename : "";
 
     const updateObj = {
       sort_order_no,
@@ -54,16 +54,13 @@ export const updateCoreService = async (req, res) => {
       isActive,
     };
 
-    if (icon) {
-      if (findData.icon) {
-        let iconPath = findData.icon;
-        if (!iconPath.startsWith("public/")) {
-          iconPath = "public/" + iconPath;
-        }
-        await deleteImage(iconPath);
-      }
-      updateObj.icon = icon;
+    if (imageFile && findData.icon) {
+      await deleteImage(findData.icon);
     }
+    if (imageFile) {
+      updateObj.icon = "coreServices/" + imageFile.filename;
+    }
+
 
     const updated = await coreServiceSchema.findByIdAndUpdate(
       coreServices_id,

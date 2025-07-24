@@ -5,7 +5,7 @@ export const createFeature = async (req, res) => {
   try {
     const { sort_order_no, title, description, isActive } = req.body;
     const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/features/" + imageFile.filename : "";
+    const icon = imageFile ? "features/" + imageFile.filename : "";
 
     const createObj = {
       sort_order_no,
@@ -45,7 +45,7 @@ export const updateFeature = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/features/" + imageFile.filename : "";
+    const icon = imageFile ? "features/" + imageFile.filename : "";
 
     const updateObj = {
       sort_order_no,
@@ -54,16 +54,13 @@ export const updateFeature = async (req, res) => {
       isActive,
     };
 
-    if (icon) {
-      if (findData.icon) {
-        let iconPath = findData.icon;
-        if (!iconPath.startsWith("public/")) {
-          iconPath = "public/" + iconPath;
-        }
-        await deleteImage(iconPath);
-      }
-      updateObj.icon = icon;
+    if (imageFile && findData.icon) {
+      await deleteImage(findData.icon);
     }
+    if (imageFile) {
+      updateObj.icon = "features/" + imageFile.filename;
+    }
+
 
     const updated = await featuresSchema.findByIdAndUpdate(
       feature_id,

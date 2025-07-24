@@ -5,7 +5,7 @@ export const createMissionVision = async (req, res) => {
   try {
     const { sort_order_no, short_desc, label, isActive } = req.body;
     const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/missionVision/" + imageFile.filename : "";
+    const icon = imageFile ? "missionVision/" + imageFile.filename : "";
 
     const createObj = {
       sort_order_no,
@@ -45,7 +45,7 @@ export const updateMissionVision = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/missionVision/" + imageFile.filename : "";
+    const icon = imageFile ? "missionVision/" + imageFile.filename : "";
 
     const updateObj = {
       sort_order_no,
@@ -54,16 +54,13 @@ export const updateMissionVision = async (req, res) => {
       isActive,
     };
 
-    if (icon) {
-      if (findData.icon) {
-        let iconPath = findData.icon;
-        if (!iconPath.startsWith("public/")) {
-          iconPath = "public/" + iconPath;
-        }
-        await deleteImage(iconPath);
-      }
-      updateObj.icon = icon;
+     if (imageFile && findData.icon) {
+      await deleteImage(findData.icon);
     }
+    if (imageFile) {
+      updateObj.icon = "missionVision/" + imageFile.filename;
+    }
+
 
     const updated = await missionViSchema.findByIdAndUpdate(
       mission_vision_id,

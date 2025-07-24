@@ -17,7 +17,7 @@ export const createHealthInfo = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "blog_img");
-    const blog_img = imageFile ? "public/healthInfo/" + imageFile.filename : "";
+    const blog_img = imageFile ? "healthInfo/" + imageFile.filename : "";
 
     const createObj = {
       sort_order_no,
@@ -73,7 +73,7 @@ export const updateHealthInfo = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "blog_img");
-    const blog_img = imageFile ? "public/healthInfo/" + imageFile.filename : "";
+    const blog_img = imageFile ? "healthInfo/" + imageFile.filename : "";
 
     const updateObj = {
       sort_order_no,
@@ -85,16 +85,13 @@ export const updateHealthInfo = async (req, res) => {
       isActive,
     };
 
-    if (blog_img) {
-      if (existingData.blog_img) {
-        let blog_imgPath = existingData.blog_img;
-        if (!blog_imgPath.startsWith("public/")) {
-          blog_imgPath = "public/" + blog_imgPath;
-        }
-        await deleteImage(blog_imgPath);
-      }
-      updateObj.blog_img = blog_img;
+    if (imageFile && findData.blog_img) {
+      await deleteImage(findData.blog_img);
     }
+    if (imageFile) {
+      updateObj.blog_img = "healthInfo/" + imageFile.filename;
+    }
+
 
     const updated = await healthSchema.findByIdAndUpdate(info_id, updateObj, { new: true });
 

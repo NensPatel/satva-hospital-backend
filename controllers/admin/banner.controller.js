@@ -18,16 +18,24 @@ export const createBanner = async (req, res) => {
 
     // Validate required files based on bannerType
     if (bannerType === "image") {
-      if (!desktopFile || !desktopFile.mimetype.startsWith("image/") ||
-          !mobileFile || !mobileFile.mimetype.startsWith("image/")) {
+      if (
+        !desktopFile ||
+        !desktopFile.mimetype.startsWith("image/") ||
+        !mobileFile ||
+        !mobileFile.mimetype.startsWith("image/")
+      ) {
         return res.status(400).json({
           message: "Desktop and mobile images are required and must be images.",
           isSuccess: false,
         });
       }
     } else if (bannerType === "video") {
-      if (!desktopFile || !desktopFile.mimetype.startsWith("video/") ||
-          !mobileFile || !mobileFile.mimetype.startsWith("video/")) {
+      if (
+        !desktopFile ||
+        !desktopFile.mimetype.startsWith("video/") ||
+        !mobileFile ||
+        !mobileFile.mimetype.startsWith("video/")
+      ) {
         return res.status(400).json({
           message: "Desktop and mobile videos are required and must be videos.",
           isSuccess: false,
@@ -40,8 +48,8 @@ export const createBanner = async (req, res) => {
       });
     }
 
-    const desktopPath = "public/banner/desktop/" + desktopFile.filename;
-    const mobilePath = "public/banner/mobile/" + mobileFile.filename;
+    const desktopPath = "banner/desktop/" + desktopFile.filename;
+    const mobilePath = "banner/mobile/" + mobileFile.filename;
 
     const newBanner = new bannersSchema({
       sort_order_no,
@@ -68,7 +76,6 @@ export const createBanner = async (req, res) => {
   }
 };
 
-
 export const updateBanner = async (req, res) => {
   try {
     const {
@@ -84,7 +91,9 @@ export const updateBanner = async (req, res) => {
 
     const findData = await bannersSchema.findById(banner_id);
     if (!findData) {
-      return res.status(404).json({ message: "Data not found!", isSuccess: false });
+      return res
+        .status(404)
+        .json({ message: "Data not found!", isSuccess: false });
     }
 
     const desktopFile = req.files?.desktopImage?.[0];
@@ -92,16 +101,20 @@ export const updateBanner = async (req, res) => {
 
     // Validate uploaded files based on bannerType
     if (bannerType === "image") {
-      if ((desktopFile && !desktopFile.mimetype.startsWith("image/")) ||
-          (mobileFile && !mobileFile.mimetype.startsWith("image/"))) {
+      if (
+        (desktopFile && !desktopFile.mimetype.startsWith("image/")) ||
+        (mobileFile && !mobileFile.mimetype.startsWith("image/"))
+      ) {
         return res.status(400).json({
           message: "Uploaded files must be images.",
           isSuccess: false,
         });
       }
     } else if (bannerType === "video") {
-      if ((desktopFile && !desktopFile.mimetype.startsWith("video/")) ||
-          (mobileFile && !mobileFile.mimetype.startsWith("video/"))) {
+      if (
+        (desktopFile && !desktopFile.mimetype.startsWith("video/")) ||
+        (mobileFile && !mobileFile.mimetype.startsWith("video/"))
+      ) {
         return res.status(400).json({
           message: "Uploaded files must be videos.",
           isSuccess: false,
@@ -124,17 +137,25 @@ export const updateBanner = async (req, res) => {
       isActive,
     };
 
+    if (desktopFile && findData.desktopImage) {
+      await deleteImage(findData.desktopImage);
+    }
     if (desktopFile) {
-      if (findData.desktopImage) await deleteImage(findData.desktopImage);
-      updateObj.desktopImage = "public/banner/desktop/" + desktopFile.filename;
+      updateObj.desktopImage = "banner/desktop/" + desktopFile.filename;
     }
 
+    if (mobileFile && findData.mobileImage) {
+      await deleteImage(findData.mobileImage);
+    }
     if (mobileFile) {
-      if (findData.mobileImage) await deleteImage(findData.mobileImage);
-      updateObj.mobileImage = "public/banner/mobile/" + mobileFile.filename;
+      updateObj.mobileImage = "banner/mobile/" + mobileFile.filename;
     }
 
-    const updated = await bannersSchema.findByIdAndUpdate(banner_id, updateObj, { new: true });
+    const updated = await bannersSchema.findByIdAndUpdate(
+      banner_id,
+      updateObj,
+      { new: true }
+    );
 
     return res.status(200).json({
       isSuccess: true,
@@ -147,10 +168,9 @@ export const updateBanner = async (req, res) => {
   }
 };
 
-
 export const deleteBanner = async (req, res) => {
   try {
-      const banner_id = req.query.banner_id;
+    const banner_id = req.query.banner_id;
 
     const findData = await bannersSchema.findById(banner_id);
     if (!findData) {

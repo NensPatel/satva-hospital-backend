@@ -1,26 +1,26 @@
-import aboutSchema from "../../models/admin/aboutUs.model.js"; 
+import aboutSchema from "../../models/admin/aboutUs.model.js";
 import { deleteImage } from "../../helpers/common.js";
- 
+
 export const createAbout = async (req, res) => {
   try {
     const { sort_order_no, title, content, isActive } = req.body;
 
     const imageFile = req.files?.find((file) => file.fieldname === "about_img");
-    const about_img = imageFile ? "public/aboutUs/" + imageFile.filename : "";
-   
+    const about_img = imageFile ? "aboutUs/" + imageFile.filename : "";
+
     const createObj = new aboutSchema({
       sort_order_no,
       title,
-      content, 
-      isActive
+      content,
+      isActive,
     });
 
-     if (about_img) {
+    if (about_img) {
       createObj.about_img = about_img;
     }
 
     const saveData = new aboutSchema(createObj);
-       await saveData.save();
+    await saveData.save();
 
     return res.status(200).send({
       isSuccess: true,
@@ -32,12 +32,11 @@ export const createAbout = async (req, res) => {
   }
 };
 
-
 export const updateAbout = async (req, res) => {
   try {
     const { about_id, sort_order_no, title, content, isActive } = req.body;
 
-   const findData = await aboutSchema.findById(about_id);
+    const findData = await aboutSchema.findById(about_id);
     if (!findData) {
       return res
         .status(404)
@@ -45,38 +44,31 @@ export const updateAbout = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "about_img");
-    const about_img = imageFile ? "public/aboutUs/" + imageFile.filename : "";
+    const about_img = imageFile ? "aboutUs/" + imageFile.filename : "";
 
     const updateObj = {
-     sort_order_no,
+      sort_order_no,
       title,
-      content, 
-      isActive
+      content,
+      isActive,
     };
 
+    if (about_img && findData.about_img) {
+      await deleteImage(findData.about_img);
+    }
     if (about_img) {
-      if (findData.about_img) {
-        let about_imgPath = findData.about_img;
-        if (!about_imgPath.startsWith("public/")) {
-          about_imgPath = "public/" + about_imgPath;
-        }
-        await deleteImage(about_imgPath);
-      }
       updateObj.about_img = about_img;
     }
 
-    const updated = await aboutSchema.findByIdAndUpdate(
-      about_id,
-      updateObj,
-      { new: true }
-    );
+    const updated = await aboutSchema.findByIdAndUpdate(about_id, updateObj, {
+      new: true,
+    });
 
     return res.status(200).send({
       isSuccess: true,
       message: "Data updated successfully.",
       data: updated,
     });
-
   } catch (error) {
     return res.status(500).send({
       message: error.message,
@@ -95,8 +87,8 @@ export const deleteAbout = async (req, res) => {
         .send({ message: "Data not found!", isSuccess: false });
     }
 
-    if (findData.logo) {
-      await deleteImage(findData.logo);
+    if (findData.about_img) {
+      await deleteImage(findData.about_img);
     }
 
     await aboutSchema.findByIdAndDelete(about_id);

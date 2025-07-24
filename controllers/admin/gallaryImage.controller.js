@@ -17,7 +17,7 @@ export const createGalleryImage = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "gallary_image");
-    const gallary_image = imageFile ? "public/gallery/" + imageFile.filename : "";
+    const gallary_image = imageFile ? "gallery/" + imageFile.filename : "";
 
     const createObj = {
       sort_order_no,
@@ -62,7 +62,7 @@ export const updateGalleryImage = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "gallary_image");
-    const gallary_image = imageFile ? "public/gallery/" + imageFile.filename : "";
+    const gallary_image = imageFile ? "gallery/" + imageFile.filename : "";
 
     const updateObj = {
       sort_order_no,
@@ -72,13 +72,13 @@ export const updateGalleryImage = async (req, res) => {
       isActive,
     };
 
-    if (gallary_image) {
-      if (findData.gallary_image) {
-        const oldPath = path.join("public", findData.gallary_image);
-        await deleteImage(oldPath);
-      }
-      updateObj.gallary_image = gallary_image;
+  if (imageFile && findData.gallary_image) {
+      await deleteImage(findData.gallary_image);
     }
+    if (imageFile) {
+      updateObj.gallary_image = "gallery/" + imageFile.filename;
+    }
+
 
     const updated = await gallaryISchema.findByIdAndUpdate(
       gallary_image_id,
@@ -104,9 +104,8 @@ export const deleteGalleryImage = async (req, res) => {
       return res.status(404).send({ message: "Data not found!", isSuccess: false });
     }
 
-    if (findData.gallary_image) {
-      const imagePath = path.join("public", findData.gallary_image);
-      await deleteImage(imagePath);
+     if (findData.gallary_image) {
+      await deleteImage(findData.gallary_image);
     }
 
     await gallaryISchema.findByIdAndDelete(gallary_image_id);

@@ -37,7 +37,7 @@ export const createTeam = async (req, res) => {
     }
 
     const imageFile = req.files?.find(f => f.fieldname === "doctor_image");
-    const doctor_image = imageFile ? "public/ourTeam/" + imageFile.filename : "";
+    const doctor_image = imageFile ? "ourTeam/" + imageFile.filename : "";
 
     const createObj = {
       sort_order_no,
@@ -93,7 +93,7 @@ export const updateTeam = async (req, res) => {
     if (parsedSocialMedia === null) return;
 
     const imageFile = req.files?.find(f => f.fieldname === "doctor_image");
-    const doctor_image = imageFile ? "public/ourTeam/" + imageFile.filename : "";
+    const doctor_image = imageFile ? "ourTeam/" + imageFile.filename : "";
 
     const updateObj = {
       sort_order_no,
@@ -104,15 +104,13 @@ export const updateTeam = async (req, res) => {
       isActive,
     };
 
-    if (doctor_image) {
-      if (existingData.doctor_image) {
-        const oldPath = existingData.doctor_image.startsWith("public/")
-          ? existingData.doctor_image
-          : "public/" + existingData.doctor_image;
-        await deleteImage(oldPath);
-      }
-      updateObj.doctor_image = doctor_image;
+    if (imageFile && existingData.doctor_image) {
+      await deleteImage(existingData.doctor_image);
     }
+    if (imageFile) {
+      updateObj.doctor_image = "cashlessFacility/" + imageFile.filename;
+    }
+
 
     const updated = await doctorSchema.findByIdAndUpdate(doctor_id, updateObj, { new: true });
 

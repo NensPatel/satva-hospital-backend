@@ -6,7 +6,7 @@ export const createCounters = async (req, res) => {
   try {
     const { sort_order_no, count, label, isActive } = req.body;
     const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/counter/" + imageFile.filename : "";
+    const icon = imageFile ? "counter/" + imageFile.filename : "";
 
     const createObj = {
       sort_order_no,
@@ -46,7 +46,7 @@ export const updateCounters = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "icon");
-    const icon = imageFile ? "public/counter/" + imageFile.filename : "";
+    const icon = imageFile ? "counter/" + imageFile.filename : "";
 
     const updateObj = {
       sort_order_no,
@@ -55,16 +55,13 @@ export const updateCounters = async (req, res) => {
       isActive,
     };
 
-    if (icon) {
-      if (findData.icon) {
-        let iconPath = findData.icon;
-        if (!iconPath.startsWith("public/")) {
-          iconPath = "public/" + iconPath;
-        }
-        await deleteImage(iconPath);
-      }
-      updateObj.icon = icon;
+    if (imageFile && findData.icon) {
+      await deleteImage(findData.icon);
     }
+    if (imageFile) {
+      updateObj.icon = "counter/" + imageFile.filename;
+    }
+
 
     const updated = await countersSchema.findByIdAndUpdate(
       counter_id,

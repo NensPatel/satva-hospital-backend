@@ -5,7 +5,7 @@ export const createCashlessFacility = async (req, res) => {
   try {
     const { sort_order_no, name, link, isActive } = req.body;
     const imageFile = req.files?.find((file) => file.fieldname === "logo");
-    const logo = imageFile ? "public/cashlessFacility/" + imageFile.filename : "";
+    const logo = imageFile ? "cashlessFacility/" + imageFile.filename : "";
 
     const createObj = {
       sort_order_no,
@@ -45,7 +45,6 @@ export const updateCashlessFacility = async (req, res) => {
     }
 
     const imageFile = req.files?.find((file) => file.fieldname === "logo");
-    const logo = imageFile ? "public/cashlessFacility/" + imageFile.filename : "";
 
     const updateObj = {
       sort_order_no,
@@ -54,15 +53,11 @@ export const updateCashlessFacility = async (req, res) => {
       isActive,
     };
 
-    if (logo) {
-      if (findData.logo) {
-        let logoPath = findData.logo;
-        if (!logoPath.startsWith("public/")) {
-          logoPath = "public/" + logoPath;
-        }
-        await deleteImage(logoPath);
-      }
-      updateObj.logo = logo;
+    if (imageFile && findData.logo) {
+      await deleteImage(findData.logo);
+    }
+    if (imageFile) {
+      updateObj.logo = "cashlessFacility/" + imageFile.filename;
     }
 
     const updated = await cashlessSchema.findByIdAndUpdate(
@@ -83,7 +78,7 @@ export const updateCashlessFacility = async (req, res) => {
 
 export const deleteCashlessFacility = async (req, res) => {
   try {
-   const cashless_id = req.query.cashless_id;
+    const cashless_id = req.query.cashless_id;
     const findData = await cashlessSchema.findById(cashless_id);
     if (!findData) {
       return res
@@ -175,7 +170,9 @@ export const updateCashlessFacilitiesIsActive = async (req, res) => {
     const cashless_id = req.params.id;
     const cashless = await cashlessSchema.findById(cashless_id);
     if (!cashless) {
-      return res.status(404).send({ message: "Cashless facility not found", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Cashless facility not found", isSuccess: false });
     }
     cashless.isActive = !cashless.isActive;
     await cashless.save();
