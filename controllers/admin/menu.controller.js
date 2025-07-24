@@ -179,6 +179,13 @@ export const getPaginationMenus = async (req, res) => {
     limit = parseInt(limit);
     const skip = (page - 1) * limit;
 
+    if (typeof parentId === "undefined") {
+      return res.status(400).send({
+        isSuccess: false,
+        message: "parentId is required",
+      });
+    }
+
     const submenus = await menusSchema
       .find({ parentId })
       .sort({ position: 1 })
@@ -200,7 +207,6 @@ export const getPaginationMenus = async (req, res) => {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
-
 
 // Get Parent Menus with Pagination & subMenuCount
 export const getPaginationParentData = async (req, res) => {

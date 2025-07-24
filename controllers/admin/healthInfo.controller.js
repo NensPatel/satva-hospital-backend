@@ -85,8 +85,8 @@ export const updateHealthInfo = async (req, res) => {
       isActive,
     };
 
-    if (imageFile && findData.blog_img) {
-      await deleteImage(findData.blog_img);
+    if (imageFile && existingData.blog_img) {
+      await deleteImage(existingData.blog_img);
     }
     if (imageFile) {
       updateObj.blog_img = "healthInfo/" + imageFile.filename;

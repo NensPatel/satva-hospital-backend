@@ -108,7 +108,7 @@ export const updateTeam = async (req, res) => {
       await deleteImage(existingData.doctor_image);
     }
     if (imageFile) {
-      updateObj.doctor_image = "cashlessFacility/" + imageFile.filename;
+      updateObj.doctor_image = "ourTeam/" + imageFile.filename;
     }
 
 
