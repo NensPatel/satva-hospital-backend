@@ -16,7 +16,7 @@ import {
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
 
 router.post("/createInquiry", verifyTokenAdmin, validateCreate, createInquiry);
-router.post("/deleteInquiry", verifyTokenAdmin, deleteInquiry);
+router.delete("/deleteInquiry", verifyTokenAdmin, deleteInquiry);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.post("/getAllInquiry", getAllInquiry);

@@ -1,36 +1,72 @@
-import inqSchema from "../../models/admin/inquiry.model.js";
+import careersSchema from "../../models/admin/career.model.js";
 import emailSettingsSchema from "../../models/admin/emailsetting.model.js";
 import { sendMail } from "../../helpers/mail.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
-export const createInquiry = async (req, res) => {
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const createCareer = async (req, res) => {
   try {
-    const { name, email, phone, message } = req.body;
+    const { name, email, contactNo, experience, subject, message } = req.body;
+    
+     const uploadFile = req.files.find((file) => file.fieldname === "uploadFile");
+    if (!uploadFile) {
+      return res.status(400).send({
+        isSuccess: false,
+        message: "File is required.",
+      });
+    }
+    const uploadFilePath = "career/" + uploadFile.filename.replace(/\s+/g, "-");
+    const attachmentPath = path.join(__dirname, "../../public", uploadFilePath);
+
     const createObj = {
       name,
       email,
-      phone,
+      contactNo,
+      experience,
+      subject,
       message,
+      uploadFile: uploadFilePath,
     };
-    const saveData = await inqSchema(createObj);
+    const saveData = await careersSchema(createObj);
     await saveData
       .save()
       .then(async (data) => {
-        const getEmailData = await emailSettingsSchema.findOne();
-        const fromEmail = getEmailData.fromEmail;
-        const ccEmail = getEmailData.ccEmail;
-        const bccEmail = getEmailData.bccEmail;
-        const inquirySubject = getEmailData.inquirySubject;
-        let inquiryTemplate = getEmailData.inquiryTemplate;
-        inquiryTemplate = inquiryTemplate.replace(/\[FIRSTNAME\]/g, name);
-        inquiryTemplate = inquiryTemplate.replace(/\[EMAIL\]/g, email);
-        inquiryTemplate = inquiryTemplate.replace(/\[PHONE\]/g, phone);
-        inquiryTemplate = inquiryTemplate.replace(/\[MESSAGE\]/g, message);
+       const getEmailData = await emailSettingsSchema.findOne();
+if (!getEmailData || !getEmailData.careerTemplate) {
+  return res.status(400).send({
+    isSuccess: false,
+    message: "Career email template not found in email settings."
+  });
+}
+
+const fromEmail1 = getEmailData.fromEmail1;
+const ccEmail1 = getEmailData.ccEmail1;
+const bccEmail1 = getEmailData.bccEmail1;
+const careerSubject = getEmailData.careerSubject;
+
+let careerTemplate = getEmailData.careerTemplate;
+        careerTemplate = careerTemplate.replace(/\[FIRSTNAME\]/g, name);
+        careerTemplate = careerTemplate.replace(/\[EMAIL\]/g, email);
+        careerTemplate = careerTemplate.replace(/\[CONTACTNO\]/g, contactNo);
+        careerTemplate = careerTemplate.replace(/\[EXPERIENCE\]/g, experience);
+        careerTemplate = careerTemplate.replace(/\[SUBJECT\]/g, subject);
+        careerTemplate = careerTemplate.replace(/\[MESSAGE\]/g, message);
         await sendMail(
-          fromEmail,
-          inquirySubject,
-          inquiryTemplate,
-          ccEmail,
-          bccEmail
+          fromEmail1,
+          careerSubject,
+          careerTemplate,
+          ccEmail1,
+          bccEmail1,
+            [
+            {
+              filename: uploadFile.originalname,
+              path: attachmentPath,
+            },
+          ]
         );
         return res.status(200).send({
           isSuccess: true,
@@ -51,9 +87,9 @@ export const createInquiry = async (req, res) => {
   }
 };
 
-export const getAllInquiry = async (req, res) => {
+export const getAllCareer = async (req, res) => {
   try {
-    const getData = await inqSchema.find().sort({ createdAt: -1 });
+    const getData = await careersSchema.find().sort({ createdAt: -1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -69,8 +105,8 @@ export const getAllInquiry = async (req, res) => {
 
 export const getDataById = async (req, res) => {
   try {
-    const inquiry_id = req.body.inquiry_id;
-    const getData = await inqSchema.findById(inquiry_id);
+    const career_id = req.body.career_id;
+    const getData = await careersSchema.findById(career_id);
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",
@@ -84,11 +120,11 @@ export const getDataById = async (req, res) => {
   }
 };
 
-export const deleteInquiry = async (req, res) => {
+export const deleteCareer = async (req, res) => {
   try {
-     const inquiry_id = req.query.inquiry_id;
-    await inqSchema
-      .findByIdAndDelete(inquiry_id)
+    const career_id = req.query.career_id;
+    await careersSchema
+      .findByIdAndDelete(career_id)
       .then(async (data) => {
         if (!data) {
           return res
@@ -122,12 +158,12 @@ export const getPaginationData = async (req, res) => {
     if (isNaN(page) || page < 1) page = 1;
     if (isNaN(limit) || limit < 1) limit = 10;
     const skip = (page - 1) * limit;
-    const getData = await inqSchema
+    const getData = await careersSchema
       .find()
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
-    const totalRecords = await inqSchema.countDocuments();
+    const totalRecords = await careersSchema.countDocuments();
     return res.status(200).send({
       isSuccess: true,
       currentPageNo: page,

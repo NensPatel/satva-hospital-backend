@@ -1,18 +1,23 @@
 import WebsiteSetting from "../../models/admin/websiteSetting.model.js";
-import { deleteImage } from "../../helpers/common.js";
+import { deleteImage, parseSocialMediaField } from "../../helpers/common.js";
 
 export const createOrUpdateWebsiteSetting = async (req, res) => {
   try {
     const {
-      companyName,
-      cin,
-      email,
+      hospitalName,
+      slogan,
+      description,
+      email1,
+      email2,
       contact1,
       contact2,
-      address1,
-      address2,
+      address,
+      socialMedia,
       mapLink,
     } = req.body;
+
+    const parsedSocialMedia = parseSocialMediaField(socialMedia, res);
+    if (parsedSocialMedia === null) return;
 
     const headerFile = req.files?.headerLogo?.[0];
     const footerFile = req.files?.footerLogo?.[0];
@@ -22,12 +27,15 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
     if (!setting) {
       // Create new
       setting = new WebsiteSetting({
-        companyName,
-        cin,
-        email,
-        contactNo: [contact1, contact2],
-        officeAddress: address1,
-        factoryAddress: address2,
+        hospitalName,
+        slogan,
+        description,
+        email1,
+        email2,
+        socialMedia: parsedSocialMedia,
+        contact1,
+        contact2,
+        address,
         mapLink,
         logoHeader: headerFile
           ? "websiteSetting/header/" + headerFile.filename
@@ -43,24 +51,29 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
         data: setting,
       });
     } else {
-      // Update existing
+      if (headerFile && setting.logoHeader) {
+        await deleteImage(setting.logoHeader);
+      }
       if (headerFile) {
-        if (setting.logoHeader)
-          await deleteImage("public/" + setting.logoHeader);
         setting.logoHeader = "websiteSetting/header/" + headerFile.filename;
       }
+
+      if (footerFile && setting.logoFooter) {
+        await deleteImage(setting.logoFooter);
+      }
       if (footerFile) {
-        if (setting.logoFooter)
-          await deleteImage("public/" + setting.logoFooter);
         setting.logoFooter = "websiteSetting/footer/" + footerFile.filename;
       }
 
-      setting.companyName = companyName;
-      setting.cin = cin;
-      setting.email = email;
-      setting.contactNo = [contact1, contact2];
-      setting.officeAddress = address1;
-      setting.factoryAddress = address2;
+      setting.hospitalName = hospitalName;
+      setting.slogan = slogan;
+      setting.description = description;
+      setting.email1 = email1;
+      setting.email2 = email2;
+      setting.contact1 = contact1;
+      setting.contact2 = contact2;
+      setting.socialMedia = parsedSocialMedia;
+      setting.address = address;
       setting.mapLink = mapLink;
 
       await setting.save();

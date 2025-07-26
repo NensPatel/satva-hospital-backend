@@ -1,23 +1,7 @@
 import doctorSchema from "../../models/admin/ourTeam.model.js";
 import doctorDetailsSchema from "../../models/admin/doctorDetails.model.js"; 
-import { deleteImage } from "../../helpers/common.js";
+import { deleteImage, parseSocialMediaField } from "../../helpers/common.js";
 import slugify from "slugify";
-
-// helper to parse socialMedia field safely
-function parseSocialMediaField(socialMedia, res) {
-  if (typeof socialMedia === "string") {
-    try {
-      return JSON.parse(socialMedia);
-    } catch (e) {
-      res.status(400).send({
-        message: "Invalid JSON in socialMedia field",
-        isSuccess: false,
-      });
-      return null;
-    }
-  }
-  return socialMedia;
-}
 
 // Create team member
 export const createTeam = async (req, res) => {

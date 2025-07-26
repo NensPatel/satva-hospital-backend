@@ -13,9 +13,9 @@ export const emailSettingsValidator = async (req, res, next) => {
     bccEmail1: Joi.string().allow("").optional(),
     ccEmail1: Joi.string().allow("").optional(),
     inquiryTemplate: Joi.string().allow("").optional(),
-    appointmentTemplate: Joi.string().allow("").optional(),
+    careerTemplate: Joi.string().allow("").optional(),
     inquirySubject: Joi.string().allow("").optional(),
-    appointmentSubject: Joi.string().allow("").optional(),
+    careerSubject: Joi.string().allow("").optional(),
   });
 
   const { error } = schema.validate(req.body);

@@ -250,6 +250,12 @@ const uploadWebsiteSetting = multer({
   { name: "footerLogo", maxCount: 1 },
 ]);
 
+const uploadCareer = multer({
+  storage: createModelStorage("career"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: docFilter,
+}).any();
+
 
 // Exports
 export {
@@ -266,6 +272,7 @@ export {
   uploadMissionVisions,
   uploadBanner,
   uploadWebsiteSetting,
+  uploadCareer,
   uploadDocuments,
   imgFilter,
   docFilter,

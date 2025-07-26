@@ -13,8 +13,8 @@ export const updateEmailSettings = async (req, res) => {
       fromEmail1,
       bccEmail1,
       ccEmail1,
-      appointmentTemplate,
-      appointmentSubject,
+      careerTemplate,
+      careerSubject,
       inquiryTemplate,
       inquirySubject,
       
@@ -32,10 +32,10 @@ export const updateEmailSettings = async (req, res) => {
       updatedData["bccEmail1"] = bccEmail1;
       updatedData["ccEmail"] = ccEmail;
       updatedData["ccEmail1"] = ccEmail1;
-      updatedData["appointmentTemplate"] = appointmentTemplate;
+      updatedData["careerTemplate"] = careerTemplate;
       updatedData["inquiryTemplate"] = inquiryTemplate;
       updatedData["inquirySubject"] = inquirySubject;
-      updatedData["appointmentSubject"] = appointmentSubject;
+      updatedData["careerSubject"] = careerSubject;
       await emailSettingsSchema
         .findByIdAndUpdate(findData.id, updatedData, { new: true })
         .then((setting) => {
@@ -63,10 +63,10 @@ export const updateEmailSettings = async (req, res) => {
         fromEmail1,
         bccEmail1,
         ccEmail1,
-        appointmentTemplate,
+        careerTemplate,
         inquiryTemplate,
         inquirySubject,
-        appointmentSubject,
+        careerSubject,
       });
       await settingData
         .save()

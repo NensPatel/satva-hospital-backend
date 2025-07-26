@@ -1,33 +1,47 @@
 import mongoose from "mongoose";
 
 const websiteSettingSchema = new mongoose.Schema({
-  companyName: { 
-    type: String, 
-    required: true 
-  },
-  cin: { 
-    type: String, 
-    required: true 
-  },
-  email: {  
-    type: String, 
-    required: true 
-  },
-  contactNo: {  
-    type: [String],
-    required: true 
-  },
-  officeAddress: { 
+  hospitalName: {
     type: String,
     required: true
   },
-  factoryAddress: { 
-    type: String,
-    required: true
-  },
-  mapLink: { 
+  slogan: {
     type: String
   },
+  description: {
+    type: String
+  },
+  mapLink: {
+    type: String
+  },
+  address: {
+    type: String,
+    required: true
+  },
+  email1: {
+    type: String,
+    required: true
+  },
+  email2: {
+    type: String
+  },
+  contact1: {
+    type: String,
+    required: true
+  },
+  contact2: {
+    type: String
+  },
+  socialMedia: [{
+    name: { 
+        type: String,
+        trim: true
+    },
+    link: { 
+        type: String,
+        trim: true
+     }
+  }],
   logoHeader: {  
     type: String
   },
@@ -36,4 +50,4 @@ const websiteSettingSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-export default mongoose.model("websiteSetting", websiteSettingSchema);
+export default mongoose.model("WebsiteSetting", websiteSettingSchema);

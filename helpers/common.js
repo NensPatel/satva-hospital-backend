@@ -20,3 +20,19 @@ export const deleteImage = (relativeFilePath) => {
     console.error("Error deleting image:", error.message);
   }
 };
+
+// Exported as const function
+export const parseSocialMediaField = (socialMedia, res) => {
+  if (typeof socialMedia === "string") {
+    try {
+      return JSON.parse(socialMedia);
+    } catch (e) {
+      res.status(400).send({
+        message: "Invalid JSON in socialMedia field",
+        isSuccess: false,
+      });
+      return null;
+    }
+  }
+  return socialMedia;
+};

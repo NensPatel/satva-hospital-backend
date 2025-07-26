@@ -41,11 +41,11 @@ const emailSettingsSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
-    appointmentTemplate: {
+    careerTemplate: {
       type: String,
       index: true,
     },
-    appointmentSubject: {
+    careerSubject: {
       type: String,
       index: true,
     },
