@@ -214,6 +214,12 @@ const uplaodGallery = multer({
   fileFilter: imgFilter,
 }).any();
 
+const uploadTieUp = multer({
+  storage: createModelStorage("tieUp"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imgFilter,
+}).any();
+
 const uploadAboutUs = multer({
   storage: createModelStorage("aboutUs"),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -256,7 +262,6 @@ const uploadCareer = multer({
   fileFilter: docFilter,
 }).any();
 
-
 // Exports
 export {
   uploadSlider,
@@ -268,6 +273,7 @@ export {
   uploadFeatures,
   uploadOurTeam,
   uplaodGallery,
+  uploadTieUp,
   uploadAboutUs,
   uploadMissionVisions,
   uploadBanner,

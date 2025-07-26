@@ -21,6 +21,8 @@ import menuRoute from "./admin/menu.route.js";
 import bannerRoute from "./admin/banner.route.js";
 import websiteSetting from "./admin/websiteSetting.route.js";
 import careerRoute from "./admin/career.route.js";
+import tieUpTitleRoute from "./admin/tieUpTitle.route.js";
+import tieUpImageRoute from "./admin/tieUpImage.route.js";
 
 const router = express.Router();
 
@@ -46,5 +48,8 @@ router.use("/menu", menuRoute);
 router.use("/banner", bannerRoute);
 router.use("/websiteSetting", websiteSetting);
 router.use("/career", careerRoute);
+router.use("/tieUpTitle", tieUpTitleRoute);
+router.use("/tieUpImage", tieUpImageRoute);
+
 
 export default router;
