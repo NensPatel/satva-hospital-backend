@@ -72,6 +72,30 @@ const emailSettingsSchema = new mongoose.Schema(
       type: String,
       index: true,
     },
+    fromEmailBlood: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    bccEmailBlood: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    ccEmailBlood: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    bloodDonateTemplate: {
+      type: String,
+      index: true,
+    },
+    bloodDonateSubject: {
+      type: String,
+      index: true,
+    },
+
   },
   { timestamps: true }
 );

@@ -16,6 +16,11 @@ export const emailSettingsValidator = async (req, res, next) => {
     careerTemplate: Joi.string().allow("").optional(),
     inquirySubject: Joi.string().allow("").optional(),
     careerSubject: Joi.string().allow("").optional(),
+    fromEmailBlood: Joi.string().allow("").optional(),
+    bccEmailBlood: Joi.string().allow("").optional(),
+    ccEmailBlood: Joi.string().allow("").optional(),  
+    bloodDonateTemplate: Joi.string().allow("").optional(),
+    bloodDonateSubject: Joi.string().allow("").optional(),
   });
 
   const { error } = schema.validate(req.body);

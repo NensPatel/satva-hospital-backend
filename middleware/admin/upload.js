@@ -220,6 +220,12 @@ const uploadTieUp = multer({
   fileFilter: imgFilter,
 }).any();
 
+const uploadBloodDonationProof = multer({
+  storage: createModelStorage("bloodDonations"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imgAndDocFilter,
+}).any();
+
 const uploadAboutUs = multer({
   storage: createModelStorage("aboutUs"),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -279,6 +285,7 @@ export {
   uploadBanner,
   uploadWebsiteSetting,
   uploadCareer,
+  uploadBloodDonationProof,
   uploadDocuments,
   imgFilter,
   docFilter,
