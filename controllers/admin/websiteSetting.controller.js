@@ -14,11 +14,22 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
       address,
       socialMedia,
       mapLink,
+      bloodDonationPopup
     } = req.body;
 
+    // Parse social media
     const parsedSocialMedia = parseSocialMediaField(socialMedia, res);
     if (parsedSocialMedia === null) return;
 
+    // Parse bloodDonationPopup JSON
+    let parsedBloodDonationPopup = null;
+    try {
+      parsedBloodDonationPopup = bloodDonationPopup ? JSON.parse(bloodDonationPopup) : null;
+    } catch (err) {
+      return res.status(400).json({ isSuccess: false, message: "Invalid JSON for bloodDonationPopup" });
+    }
+
+    // Parse uploaded files
     const headerFile = req.files?.headerLogo?.[0];
     const footerFile = req.files?.footerLogo?.[0];
 
@@ -32,36 +43,35 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
         description,
         email1,
         email2,
-        socialMedia: parsedSocialMedia,
         contact1,
         contact2,
         address,
+        socialMedia: parsedSocialMedia,
         mapLink,
-        logoHeader: headerFile
-          ? "websiteSetting/header/" + headerFile.filename
-          : null,
-        logoFooter: footerFile
-          ? "websiteSetting/footer/" + footerFile.filename
-          : null,
+        logoHeader: headerFile ? "websiteSetting/header/" + headerFile.filename : null,
+        logoFooter: footerFile ? "websiteSetting/footer/" + footerFile.filename : null,
+        bloodDonationPopup: {
+          isActive: parsedBloodDonationPopup?.isActive || false,
+          description: parsedBloodDonationPopup?.description || ""
+        }
       });
+
       await setting.save();
       return res.status(200).json({
         isSuccess: true,
         message: "Settings created successfully",
         data: setting,
       });
+
     } else {
+      // Update existing
+
       if (headerFile && setting.logoHeader) {
         await deleteImage(setting.logoHeader);
-      }
-      if (headerFile) {
         setting.logoHeader = "websiteSetting/header/" + headerFile.filename;
       }
-
       if (footerFile && setting.logoFooter) {
         await deleteImage(setting.logoFooter);
-      }
-      if (footerFile) {
         setting.logoFooter = "websiteSetting/footer/" + footerFile.filename;
       }
 
@@ -72,9 +82,18 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
       setting.email2 = email2;
       setting.contact1 = contact1;
       setting.contact2 = contact2;
-      setting.socialMedia = parsedSocialMedia;
       setting.address = address;
+      setting.socialMedia = parsedSocialMedia;
       setting.mapLink = mapLink;
+
+      if (parsedBloodDonationPopup) {
+        if (typeof parsedBloodDonationPopup.isActive !== "undefined") {
+          setting.bloodDonationPopup.isActive = parsedBloodDonationPopup.isActive;
+        }
+        if (typeof parsedBloodDonationPopup.description !== "undefined") {
+          setting.bloodDonationPopup.description = parsedBloodDonationPopup.description;
+        }
+      }
 
       await setting.save();
       return res.status(200).json({

@@ -27,7 +27,7 @@ export const websiteSettingsValidator = async (req, res, next) => {
         })
       )
       .required()
-      .label("Social Media"),
+      .label("Social Media"),  
   });
 
   const { error } = schema.validate(req.body, { abortEarly: false });

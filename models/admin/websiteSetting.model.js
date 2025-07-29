@@ -47,7 +47,11 @@ const websiteSettingSchema = new mongoose.Schema({
   },
   logoFooter: {   
     type: String
-  }
+  },
+  bloodDonationPopup: {
+    isActive: { type: Boolean, default: false },
+    description: { type: String,  trim: true }
+  },
 }, { timestamps: true });
 
 export default mongoose.model("WebsiteSetting", websiteSettingSchema);
