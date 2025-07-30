@@ -14,7 +14,8 @@ import {
   getDataById,
   getAllSpeciality,
   getLastSrNo,
-  updateSpecilityIsActive
+  updateSpecilityIsActive,
+  getDataBySlug
 } from "../../controllers/admin/speciality.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
@@ -27,6 +28,7 @@ router.delete("/deleteSpeciality", verifyTokenAdmin, deleteSpeciality);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.post("/getDataBySlug/:slug", verifyTokenAdmin, getDataBySlug);
 router.post("/getAllSpeciality", getAllSpeciality);
 
 export default router;

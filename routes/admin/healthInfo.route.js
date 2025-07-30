@@ -14,7 +14,8 @@ import {
   getDataById,
   getAllHealthInfo,
   getLastSrNo,
-  updateHealthInfoIsActive
+  updateHealthInfoIsActive,
+  getDataBySlug
 } from "../../controllers/admin/healthInfo.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
@@ -27,6 +28,7 @@ router.delete("/deleteHealthInfo", verifyTokenAdmin, deleteHealthInfo);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.post("/getDataBySlug/:slug", verifyTokenAdmin, getDataBySlug);
 router.get("/getAllHealthInfo", getAllHealthInfo);
 
 export default router;

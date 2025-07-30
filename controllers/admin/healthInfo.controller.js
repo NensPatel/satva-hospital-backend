@@ -216,14 +216,33 @@ export const updateHealthInfoIsActive = async (req, res) => {
 
 export const getDataBySlug = async (req, res) => {
   try {
-    const { slug } = req.body;
+    const { slug } = req.params;
+
+    if (!slug) {
+      return res.status(400).send({
+        isSuccess: false,
+        message: "Slug is required.",
+      });
+    }
+
     const data = await healthSchema.findOne({ slug });
+
+    if (!data) {
+      return res.status(404).send({
+        isSuccess: false,
+        message: "Health info not found.",
+      });
+    }
+
     return res.status(200).send({
       isSuccess: true,
-      message: "Get data successfully.",
+      message: "Data fetched successfully.",
       data,
     });
   } catch (error) {
-    return res.status(500).send({ message: error.message, isSuccess: false });
+    return res.status(500).send({
+      isSuccess: false,
+      message: error.message,
+    });
   }
 };
