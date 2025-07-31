@@ -1,8 +1,13 @@
 import mongoose from "mongoose";
 
-const aboutUsSchema = new mongoose.Schema(
+const aboutUsTabsSchema = new mongoose.Schema(
   {
-    sort_order_no: { 
+      about_img_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "about_us_image",
+      index: true,
+    },
+     sort_order_no: { 
       type: Number, 
       trim: true,
       index: true,
@@ -17,18 +22,13 @@ const aboutUsSchema = new mongoose.Schema(
       trim: true,
       index: true,
      },
-    about_img: {
-      type: String, 
-      trim: true
-    },
-    isActive: { 
+      isActive: { 
       type: Boolean,
       default: true,
       index: true, 
     },
-
   },
   { timestamps: true }
 );
 
-export default mongoose.model("about_us", aboutUsSchema);
+export default mongoose.model("about_us_tabs", aboutUsTabsSchema);

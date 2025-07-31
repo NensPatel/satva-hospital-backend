@@ -22,12 +22,16 @@ const disorderSchema = new mongoose.Schema(
       ref: "specialities",
       required: true,
     },
+    disordersDetails: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "DisorderSection" }],
+      trim: true,
+      default: [],
+    },
     isActive: {
       type: Boolean,
       default: true,
       index: true,
     },
-
   },
   { timestamps: true }
 );

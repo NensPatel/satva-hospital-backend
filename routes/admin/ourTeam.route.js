@@ -14,7 +14,8 @@ import {
   getDataById,
   getAllTeam,
   getLastSrNo,
-  updateTeamIsActive
+  updateTeamIsActive,
+  getDataBySlug
 } from "../../controllers/admin/ourTeam.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
@@ -26,6 +27,7 @@ router.get("/updateTeamIsActive/:id", verifyTokenAdmin, updateTeamIsActive);
 router.delete("/deleteTeam", verifyTokenAdmin, deleteTeam);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
+router.post("/getDataBySlug/:slug", verifyTokenAdmin, getDataBySlug);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
 router.post("/getAllTeam", getAllTeam);
 

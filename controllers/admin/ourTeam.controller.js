@@ -30,22 +30,33 @@ export const createTeam = async (req, res) => {
       designation,
       socialMedia: parsedSocialMedia,
       isActive,
+      doctorDetails: [], 
     };
     if (doctor_image) createObj.doctor_image = doctor_image;
 
-    const saveData = new doctorSchema(createObj);
-    await saveData.save();
+    const newDoctor = new doctorSchema(createObj);
+    await newDoctor.save();
+
+    const linkedDetails = await doctorDetailsSchema.find({ doctor_id: newDoctor._id });
+
+    newDoctor.doctorDetails = linkedDetails.map(d => d._id);
+    await newDoctor.save();
+
+    const populated = await doctorSchema
+      .findById(newDoctor._id)
+      .populate("doctorDetails");
 
     return res.status(200).send({
       isSuccess: true,
       message: "Data created successfully.",
-      data: saveData,
+      data: populated,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+
 
 // Update team member
 export const updateTeam = async (req, res) => {
@@ -62,7 +73,6 @@ export const updateTeam = async (req, res) => {
     }
 
     slug = slugify(slug || name, { lower: true, strict: true });
-
     if (slug !== existingData.slug) {
       const existingSlug = await doctorSchema.findOne({ slug });
       if (existingSlug) {
@@ -95,19 +105,28 @@ export const updateTeam = async (req, res) => {
       updateObj.doctor_image = "ourTeam/" + imageFile.filename;
     }
 
+    const updatedDoctor = await doctorSchema.findByIdAndUpdate(doctor_id, updateObj, { new: true });
 
-    const updated = await doctorSchema.findByIdAndUpdate(doctor_id, updateObj, { new: true });
+    const linkedDetails = await doctorDetailsSchema.find({ doctor_id: updatedDoctor._id });
+
+    updatedDoctor.doctorDetails = linkedDetails.map(d => d._id);
+    await updatedDoctor.save();
+
+    const populated = await doctorSchema
+      .findById(updatedDoctor._id)
+      .populate("doctorDetails");
 
     return res.status(200).send({
       isSuccess: true,
       message: "Data updated successfully.",
-      data: updated,
+      data: populated,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+
 // Delete team member
 export const deleteTeam = async (req, res) => {
   try {
@@ -218,7 +237,7 @@ export const updateTeamIsActive = async (req, res) => {
     const doctor_id = req.params.id;
     const team = await doctorSchema.findById(doctor_id);
     if (!team) {
-      return res.status(404).send({ message: "disorder section not found", isSuccess: false });
+      return res.status(404).send({ message: "doctor not found", isSuccess: false });
     }
     team.isActive = !team.isActive;
     await team.save();
@@ -229,5 +248,41 @@ export const updateTeamIsActive = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const getDataBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    if (!slug) {
+      return res.status(400).send({
+        isSuccess: false,
+        message: "Slug is required.",
+      });
+    }
+
+    const data = await doctorSchema
+    .findOne({ slug  })
+      .populate("doctorDetails")
+      .lean(); 
+
+    if (!data) {
+      return res.status(404).send({
+        isSuccess: false,
+        message: "Doctor not found.",
+      });
+    }
+
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Data fetched successfully.",
+      data,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      isSuccess: false,
+      message: error.message,
+    });
   }
 };

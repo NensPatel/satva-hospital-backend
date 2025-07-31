@@ -37,6 +37,10 @@ const doctorProfileSchema = new mongoose.Schema({
         trim: true
      }
   }],
+  doctorDetails: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: "doctor_details" }],
+    trim: true,
+  },
 
   isActive: { 
     type: Boolean, 

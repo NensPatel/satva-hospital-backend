@@ -7,7 +7,6 @@ import slugify from "slugify";
 export const createDisorder = async (req, res) => {
   try {
     const { sort_order_no, name, slug, speciality_id, isActive } = req.body;
-    let { disordersDetails } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(speciality_id)) {
       return res.status(400).send({ message: "Invalid speciality_id format.", isSuccess: false });
@@ -24,44 +23,46 @@ export const createDisorder = async (req, res) => {
       return res.status(400).send({ message: "Slug already exists.", isSuccess: false });
     }
 
-    // Parse disordersDetails to array of valid ObjectIds
-    if (typeof disordersDetails === "string") {
-      try {
-        disordersDetails = JSON.parse(disordersDetails);
-      } catch {
-        disordersDetails = disordersDetails.split(",").map(d => d.trim());
-      }
-    }
-    if (!Array.isArray(disordersDetails)) disordersDetails = [];
-    disordersDetails = disordersDetails.filter(d => mongoose.Types.ObjectId.isValid(d));
-
-    // Only keep IDs that actually exist
-    const validDisorders = await disorderSectionSchema.find({ _id: { $in: disordersDetails } });
-    const validDisorderIds = validDisorders.map(d => d._id);
-
+    // Initially create disorder without disorderDetails
     const newDisorder = new disordersSchema({
       sort_order_no,
       name,
       slug: cleanedSlug,
       speciality_id,
       isActive: typeof isActive === "boolean" ? isActive : true,
-      disordersDetails: validDisorderIds,
+      disordersDetails: [] // start empty
     });
 
-    const saved = await newDisorder.save();
+    await newDisorder.save();
 
-    return res.status(200).send({ isSuccess: true, message: "Disorder created successfully.", data: saved });
+    // Now find disorder sections that belong to this disorder
+    const linkedSections = await disorderSectionSchema.find({
+      disorder_id: newDisorder._id
+    });
+
+    // Update the disorder with these disorderDetails IDs
+    newDisorder.disordersDetails = linkedSections.map(d => d._id);
+    await newDisorder.save();
+
+    // Optionally populate before sending back
+    const populated = await disordersSchema
+      .findById(newDisorder._id)
+      .populate("disordersDetails")
+      .populate("speciality_id", "title"); // also include speciality title if you like
+
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Disorder created successfully.",
+      data: populated
+    });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
 
-
-
 export const updateDisorder = async (req, res) => {
   try {
     const { disorder_id, sort_order_no, name, slug, speciality_id, isActive } = req.body;
-    let { disordersDetails } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(disorder_id)) {
       return res.status(400).send({ message: "Invalid disorder_id format.", isSuccess: false });
@@ -82,36 +83,41 @@ export const updateDisorder = async (req, res) => {
       return res.status(400).send({ message: "Slug already in use.", isSuccess: false });
     }
 
-    // Parse disordersDetails
-    if (typeof disordersDetails === "string") {
-      try {
-        disordersDetails = JSON.parse(disordersDetails);
-      } catch {
-        disordersDetails = disordersDetails.split(",").map(d => d.trim());
-      }
-    }
-    if (!Array.isArray(disordersDetails)) disordersDetails = [];
-    disordersDetails = disordersDetails.filter(d => mongoose.Types.ObjectId.isValid(d));
-
-    const validDisorders = await disorderSectionSchema.find({ _id: { $in: disordersDetails } });
-    const validDisorderIds = validDisorders.map(d => d._id);
-
     const updateObj = {
       sort_order_no,
       name,
       slug: cleanedSlug,
       isActive,
-      disordersDetails: validDisorderIds,
     };
     if (speciality_id) updateObj.speciality_id = speciality_id;
 
+    // Update disorder
     const updated = await disordersSchema.findByIdAndUpdate(disorder_id, updateObj, { new: true });
 
-    return res.status(200).send({ isSuccess: true, message: "Disorder updated successfully.", data: updated });
+    // Find disorder sections linked to this disorder
+    const linkedSections = await disorderSectionSchema.find({
+      disorder_id: updated._id
+    });
+
+    updated.disordersDetails = linkedSections.map(d => d._id);
+    await updated.save();
+
+    // Populate before sending back
+    const populated = await disordersSchema
+      .findById(updated._id)
+      .populate("disordersDetails")
+      .populate("speciality_id", "title");
+
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Disorder updated successfully.",
+      data: populated
+    });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+
 
 
 export const deleteDisorder = async (req, res) => {
@@ -222,15 +228,37 @@ export const getLastSrNo = async (req, res) => {
 
 export const getDataBySlug = async (req, res) => {
   try {
-    const { slug } = req.body;
-    const data = await disordersSchema.findOne({ slug });
-    return res.status(200).send({
+    const { slug } = req.params;
+    if (!slug) {
+      return res.status(400).json({
+        isSuccess: false,
+        message: "Slug is required.",
+      });
+    }
+
+    const disorder = await disordersSchema
+      .findOne({ slug  })
+      .populate("disordersDetails")
+      .lean(); 
+
+    if (!disorder) {
+      return res.status(404).json({
+        isSuccess: false,
+        message: "Disorder not found.",
+      });
+    }
+
+    return res.status(200).json({
       isSuccess: true,
-      message: "Get data successfully.",
-      data,
+      message: "Data fetched successfully.",
+      data: disorder,
     });
   } catch (error) {
-    return res.status(500).send({ message: error.message, isSuccess: false });
+    console.error(error);
+    return res.status(500).json({
+      isSuccess: false,
+      message: error.message,
+    });
   }
 };
 
