@@ -26,6 +26,7 @@ import careerRoute from "./admin/career.route.js";
 import tieUpTitleRoute from "./admin/tieUpTitle.route.js";
 import tieUpImageRoute from "./admin/tieUpImage.route.js";
 import bloodDonationRoute from "./admin/bloodDonation.route.js";
+import coreFacilitiesRoute from "./admin/coreFacilities.route.js";
 
 const router = express.Router();
 
@@ -56,6 +57,7 @@ router.use("/career", careerRoute);
 router.use("/tieUpTitle", tieUpTitleRoute);
 router.use("/tieUpImage", tieUpImageRoute);
 router.use("/bloodDonation", bloodDonationRoute);
+router.use("/coreFacilities", coreFacilitiesRoute);
 
 
 export default router;
