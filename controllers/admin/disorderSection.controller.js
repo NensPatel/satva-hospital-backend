@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
-import disorderSectionsSchema from "../../models/admin/disorderSection.model.js"; 
-import disordersSchema from "../../models/admin/disorder.model.js"; 
- 
+import disorderSectionsSchema from "../../models/admin/disorderSection.model.js";
+import disordersSchema from "../../models/admin/disorder.model.js";
 
 export const createDisorderSection = async (req, res) => {
   try {
@@ -26,7 +25,7 @@ export const createDisorderSection = async (req, res) => {
     const newDisorder = new disorderSectionsSchema({
       sort_order_no,
       title,
-      content, 
+      content,
       disorder_id,
       isActive: typeof isActive === "boolean" ? isActive : true,
     });
@@ -43,10 +42,16 @@ export const createDisorderSection = async (req, res) => {
   }
 };
 
-
 export const updateDisorderSection = async (req, res) => {
   try {
-    const { disorderSection_id, sort_order_no, title, content, disorder_id, isActive } = req.body;
+    const {
+      disorderSection_id,
+      sort_order_no,
+      title,
+      content,
+      disorder_id,
+      isActive,
+    } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(disorderSection_id)) {
       return res.status(400).send({
@@ -55,7 +60,9 @@ export const updateDisorderSection = async (req, res) => {
       });
     }
 
-    const existingDisorder = await disorderSectionsSchema.findById(disorderSection_id);
+    const existingDisorder = await disorderSectionsSchema.findById(
+      disorderSection_id
+    );
     if (!existingDisorder) {
       return res.status(404).send({
         message: "Disorder Section not found.",
@@ -92,7 +99,6 @@ export const updateDisorderSection = async (req, res) => {
       message: "Disorder updated successfully.",
       data: updatedDisorder,
     });
-
   } catch (error) {
     return res.status(500).send({
       message: error.message,
@@ -111,7 +117,9 @@ export const deleteDisorderSection = async (req, res) => {
       });
     }
 
-    const deleted = await disorderSectionsSchema.findByIdAndDelete(disorderSection_id);
+    const deleted = await disorderSectionsSchema.findByIdAndDelete(
+      disorderSection_id
+    );
     if (!deleted) {
       return res
         .status(404)
@@ -140,6 +148,42 @@ export const getAllDisorderSections = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const getDataBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    if (!slug) {
+      return res.status(400).json({ message: "Slug parameter is required" });
+    }
+
+    const disorderData = await disordersSchema
+      .findOne({ slug, isActive: true })
+      .populate({
+        path: "disordersDetails",
+        match: { isActive: true },
+        options: { sort: { sort_order_no: 1 } },
+      })
+      .populate({
+        path: "speciality_id",
+        select: "title title_slug",
+      })
+      .lean();
+
+    if (!disorderData) {
+      return res.status(404).json({ message: "Disorder not found" });
+    }
+
+    if (!Array.isArray(disorderData.disordersDetails)) {
+      disorderData.disordersDetails = [];
+    }
+
+    return res.status(200).json({ data: disorderData });
+  } catch (error) {
+    console.error("Error in getDataBySlug:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -210,9 +254,13 @@ export const getLastSrNo = async (req, res) => {
 export const updateDisorderSectionIsActive = async (req, res) => {
   try {
     const disorderSection_id = req.params.id;
-    const disorderSection = await disorderSectionsSchema.findById(disorderSection_id);
+    const disorderSection = await disorderSectionsSchema.findById(
+      disorderSection_id
+    );
     if (!disorderSection) {
-      return res.status(404).send({ message: "disorder section not found", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "disorder section not found", isSuccess: false });
     }
     disorderSection.isActive = !disorderSection.isActive;
     await disorderSection.save();
@@ -231,22 +279,30 @@ export const updateDisorderSectionPosition = async (req, res) => {
     const { id, direction } = req.body;
     const currentItem = await disorderSectionsSchema.findById(id);
     if (!currentItem) {
-      return res.status(404).send({ message: "Disorder Section not found", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Disorder Section not found", isSuccess: false });
     }
 
     let swapItem;
     if (direction === "up") {
-      swapItem = await disorderSectionsSchema.findOne({
-        sort_order_no: { $lt: currentItem.sort_order_no },
-        disorder_id: currentItem.disorder_id || null,
-      }).sort({ sort_order_no: -1 });
+      swapItem = await disorderSectionsSchema
+        .findOne({
+          sort_order_no: { $lt: currentItem.sort_order_no },
+          disorder_id: currentItem.disorder_id || null,
+        })
+        .sort({ sort_order_no: -1 });
     } else if (direction === "down") {
-      swapItem = await disorderSectionsSchema.findOne({
-        sort_order_no: { $gt: currentItem.sort_order_no },
-        disorder_id: currentItem.disorder_id || null,
-      }).sort({ sort_order_no: 1 });
+      swapItem = await disorderSectionsSchema
+        .findOne({
+          sort_order_no: { $gt: currentItem.sort_order_no },
+          disorder_id: currentItem.disorder_id || null,
+        })
+        .sort({ sort_order_no: 1 });
     } else {
-      return res.status(400).send({ message: "Invalid direction", isSuccess: false });
+      return res
+        .status(400)
+        .send({ message: "Invalid direction", isSuccess: false });
     }
 
     if (!swapItem) {
@@ -272,26 +328,30 @@ export const updateDisorderSectionPosition = async (req, res) => {
   }
 };
 
-
 export const disorderSectionByDisorder = async (req, res) => {
   try {
     const { disorder_id } = req.params;
     let { page = 1, limit = 10 } = req.query;
 
     if (!disorder_id || !mongoose.Types.ObjectId.isValid(disorder_id)) {
-      return res.status(400).json({ isSuccess: false, message: "Valid disorder_id is required" });
+      return res
+        .status(400)
+        .json({ isSuccess: false, message: "Valid disorder_id is required" });
     }
 
     page = parseInt(page);
     limit = parseInt(limit);
     const skip = (page - 1) * limit;
 
-    const sections = await disorderSectionsSchema.find({ disorder_id: new mongoose.Types.ObjectId(disorder_id) })
+    const sections = await disorderSectionsSchema
+      .find({ disorder_id: new mongoose.Types.ObjectId(disorder_id) })
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);
 
-    const totalCount = await disorderSectionsSchema.countDocuments({ disorder_id: new mongoose.Types.ObjectId(disorder_id) });
+    const totalCount = await disorderSectionsSchema.countDocuments({
+      disorder_id: new mongoose.Types.ObjectId(disorder_id),
+    });
     const totalPages = Math.ceil(totalCount / limit);
 
     return res.status(200).json({
@@ -299,7 +359,7 @@ export const disorderSectionByDisorder = async (req, res) => {
       message: "Sections fetched successfully",
       data: sections,
       totalPages,
-      totalCount
+      totalCount,
     });
   } catch (error) {
     console.error("Error fetching sections:", error);

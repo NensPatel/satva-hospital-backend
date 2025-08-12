@@ -13,6 +13,7 @@ import {
   getPaginationData,
   getDataById,
   getAllDisorderSections,
+  getDataBySlug,
   getLastSrNo,
   updateDisorderSectionIsActive,
   updateDisorderSectionPosition,
@@ -33,5 +34,7 @@ router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
 
 router.post("/getAllDisorderSections", getAllDisorderSections);
+router.post("/getDataBySlug/:slug", getDataBySlug);
+
 
 export default router;
