@@ -28,7 +28,7 @@ router.delete("/deleteSpeciality", verifyTokenAdmin, deleteSpeciality);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
-router.post("/getDataBySlug/:slug", verifyTokenAdmin, getDataBySlug);
+router.post("/getDataBySlug/:slug",  getDataBySlug);
 router.post("/getAllSpeciality", getAllSpeciality);
 
 export default router;
