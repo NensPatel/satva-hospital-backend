@@ -12,7 +12,6 @@ export const deleteImage = (relativeFilePath) => {
     const fullPath = path.join(__dirname, "../public", relativeFilePath);
     if (fs.existsSync(fullPath)) {
       fs.unlinkSync(fullPath);
-      console.log("Deleted:", fullPath);
     } else {
       console.warn("File not found to delete:", fullPath);
     }

@@ -1,7 +1,6 @@
 import { convertToUrlPath } from "./common.js";
 
 const validateRequest = (schema, deleteImage) => (req, res, next) => {
-  console.log(req.files);
 
   if (req.body?.images && Array.isArray(req.body?.images)) {
     req.body.images = req.body.images.map((image) => ({

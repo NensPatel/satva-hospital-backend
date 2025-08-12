@@ -143,8 +143,6 @@ export const getPaginationData = async (req, res) => {
         return { ...item._doc, aboutTabCount };
       })
     );
-    console.log(data);
-
     return res.status(200).send({
       isSuccess: true,
       currentPageNo: page,
