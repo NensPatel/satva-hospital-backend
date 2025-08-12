@@ -108,10 +108,11 @@ export const updateMenu = async (req, res) => {
 export const deleteMenu = async (req, res) => {
   try {
     const menu_id = req.query.menu_id;
-;
     const deleted = await menusSchema.findByIdAndDelete(menu_id);
     if (!deleted) {
-      return res.status(404).send({ message: "Menu not found!", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Menu not found!", isSuccess: false });
     }
     return res.status(200).send({
       isSuccess: true,
@@ -128,30 +129,39 @@ export const deleteMenu = async (req, res) => {
 // Get All Menu (without pagination)
 export const getAllMenu = async (req, res) => {
   try {
-    const getData = await menusSchema
-      .find({ parentId: null }) // only parent menus
-      .sort({ position: 1 });
+    const parents = await menusSchema
+      .find({ parentId: null, isActive: true, showInHeader: true })
+      .sort({ position: 1 })
+      .lean();
 
-    const dataWithCount = await Promise.all(
-      getData.map(async (menu) => {
-        const subMenuCount = await menusSchema.countDocuments({ parentId: menu._id });
-        return { ...menu.toObject(), subMenuCount };
+    const parentsWithSubmenus = await Promise.all(
+      parents.map(async (parent) => {
+        const subMenus = await menusSchema
+          .find({ parentId: parent._id, isActive: true, showInHeader: true })
+          .sort({ position: 1 })
+          .lean();
+
+        return {
+          ...parent,
+          subMenu: subMenus,
+          subMenuCount: subMenus.length,
+        };
       })
     );
 
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
-      data: dataWithCount,
+      data: parentsWithSubmenus,
     });
   } catch (error) {
+    console.error(error);
     return res.status(500).send({
       message: error.message,
       isSuccess: false,
     });
   }
 };
-
 
 // Get Menu by ID
 export const getDataById = async (req, res) => {
@@ -226,7 +236,9 @@ export const getPaginationParentData = async (req, res) => {
 
     const data = await Promise.all(
       parentMenus.map(async (menu) => {
-        const subMenuCount = await menusSchema.countDocuments({ parentId: menu._id });
+        const subMenuCount = await menusSchema.countDocuments({
+          parentId: menu._id,
+        });
         return { ...menu._doc, subMenuCount };
       })
     );
@@ -250,7 +262,9 @@ export const updateMenuIsActive = async (req, res) => {
     const menu_id = req.params.id;
     const menu = await menusSchema.findById(menu_id);
     if (!menu) {
-      return res.status(404).send({ message: "Menu not found", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Menu not found", isSuccess: false });
     }
     menu.isActive = !menu.isActive;
     await menu.save();
@@ -269,7 +283,9 @@ export const updateSubMenuIsActive = async (req, res) => {
     const menu_id = req.params.id;
     const menu = await menusSchema.findById(menu_id);
     if (!menu) {
-      return res.status(404).send({ message: "Menu not found", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Menu not found", isSuccess: false });
     }
     menu.isActive = !menu.isActive;
     await menu.save();
@@ -289,22 +305,30 @@ export const updateMenuPosition = async (req, res) => {
     const { id, direction } = req.body;
     const currentItem = await menusSchema.findById(id);
     if (!currentItem) {
-      return res.status(404).send({ message: "Menu not found", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Menu not found", isSuccess: false });
     }
 
     let swapItem;
     if (direction === "up") {
-      swapItem = await menusSchema.findOne({
-        position: { $lt: currentItem.position },
-        parentId: currentItem.parentId || null,
-      }).sort({ position: -1 });
+      swapItem = await menusSchema
+        .findOne({
+          position: { $lt: currentItem.position },
+          parentId: currentItem.parentId || null,
+        })
+        .sort({ position: -1 });
     } else if (direction === "down") {
-      swapItem = await menusSchema.findOne({
-        position: { $gt: currentItem.position },
-        parentId: currentItem.parentId || null,
-      }).sort({ position: 1 });
+      swapItem = await menusSchema
+        .findOne({
+          position: { $gt: currentItem.position },
+          parentId: currentItem.parentId || null,
+        })
+        .sort({ position: 1 });
     } else {
-      return res.status(400).send({ message: "Invalid direction", isSuccess: false });
+      return res
+        .status(400)
+        .send({ message: "Invalid direction", isSuccess: false });
     }
 
     if (!swapItem) {
@@ -333,7 +357,9 @@ export const updateMenuPosition = async (req, res) => {
 // Get all menus without pagination
 export const getMenuWithoutPagination = async (req, res) => {
   try {
-    const menus = await menusSchema.find().select("_id parentId menuName position");
+    const menus = await menusSchema
+      .find()
+      .select("_id parentId menuName position");
     return res.status(200).send({
       isSuccess: true,
       data: menus,
@@ -345,8 +371,6 @@ export const getMenuWithoutPagination = async (req, res) => {
     });
   }
 };
-
-
 
 export const getLastSrNo = async (req, res) => {
   try {
@@ -370,9 +394,7 @@ export const getMenusByParentId = async (req, res) => {
       });
     }
 
-    const subMenus = await menusSchema
-      .find({ parentId })
-      .sort({ position: 1 });
+    const subMenus = await menusSchema.find({ parentId }).sort({ position: 1 });
 
     return res.status(200).send({
       isSuccess: true,
