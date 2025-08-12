@@ -10,30 +10,30 @@ const __dirname = path.dirname(__filename);
 // Storage engine generator
 const createModelStorage = (modelType) => {
   return multer.diskStorage({
-   destination: (req, file, cb) => {
-  let uploadDir = path.join(__dirname, `../../public/${modelType}`);
+    destination: (req, file, cb) => {
+      let uploadDir = path.join(__dirname, `../../public/${modelType}`);
 
-  if (modelType === "banner") {
-    if (file.fieldname === "desktopImage") {
-      uploadDir = path.join(uploadDir, "desktop");
-    } else if (file.fieldname === "mobileImage") {
-      uploadDir = path.join(uploadDir, "mobile");
-    }
-  }
+      if (modelType === "banner") {
+        if (file.fieldname === "desktopImage") {
+          uploadDir = path.join(uploadDir, "desktop");
+        } else if (file.fieldname === "mobileImage") {
+          uploadDir = path.join(uploadDir, "mobile");
+        }
+      }
 
- if (modelType === "websiteSetting") {
-    if (file.fieldname === "headerLogo") {
-      uploadDir = path.join(uploadDir, "header");
-    } else if (file.fieldname === "footerLogo") {
-      uploadDir = path.join(uploadDir, "footer");
-    }
-  }
+      if (modelType === "websiteSetting") {
+        if (file.fieldname === "headerLogo") {
+          uploadDir = path.join(uploadDir, "header");
+        } else if (file.fieldname === "footerLogo") {
+          uploadDir = path.join(uploadDir, "footer");
+        }
+      }
 
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
-  cb(null, uploadDir);
-},
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      cb(null, uploadDir);
+    },
 
     filename: (req, file, cb) => {
       const filename = `${Date.now()}-${file.originalname}`;
@@ -46,7 +46,7 @@ const createModelStorage = (modelType) => {
         }
       }
 
-        if (modelType === "banner") {
+      if (modelType === "banner") {
         if (file.fieldname === "desktopImage") {
           storedPath = `public/${modelType}/desktop/${filename}`;
         } else if (file.fieldname === "mobileImage") {
@@ -54,14 +54,13 @@ const createModelStorage = (modelType) => {
         }
       }
 
-       if (modelType === "websiteSetting") {
-  if (file.fieldname === "headerLogo") {
-    storedPath = `public/${modelType}/header/${filename}`;
-  } else if (file.fieldname === "footerLogo") {
-    storedPath = `public/${modelType}/footer/${filename}`;
-  }
-}
-
+      if (modelType === "websiteSetting") {
+        if (file.fieldname === "headerLogo") {
+          storedPath = `public/${modelType}/header/${filename}`;
+        } else if (file.fieldname === "footerLogo") {
+          storedPath = `public/${modelType}/footer/${filename}`;
+        }
+      }
 
       // Optionally attach to req.body for later use
       if (file.fieldname === "headerLogo") {
@@ -87,7 +86,7 @@ const createModelStorage = (modelType) => {
 };
 
 const videoFilter = (req, file, cb) => {
-   const fileTypes = /mp4|mov|avi/;
+  const fileTypes = /mp4|mov|avi/;
   const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = fileTypes.test(file.mimetype);
 
@@ -96,7 +95,7 @@ const videoFilter = (req, file, cb) => {
   } else {
     cb(new Error("Only videos are allowed (mp4, mov, avi, etc.)"), false);
   }
-}
+};
 // Image filter
 const imgFilter = (req, file, cb) => {
   const fileTypes = /jpeg|jpg|png|webp|svg|gif/;
@@ -156,14 +155,12 @@ const imgAndVideoFilter = (req, file, cb) => {
   }
 };
 
-
 // Uploaders
 const uploadSlider = multer({
   storage: createModelStorage("slider"),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   fileFilter: imgFilter,
 });
-
 
 const uploadDocuments = multer({
   storage: createModelStorage("documents"),
@@ -176,7 +173,6 @@ const uploadCounter = multer({
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: imgFilter,
 }).any();
-
 
 const uploadCoreServices = multer({
   storage: createModelStorage("coreServices"),
@@ -194,7 +190,7 @@ const uploadHealthInfo = multer({
   storage: createModelStorage("healthInfo"),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: imgFilter,
-}).any(); 
+}).any();
 
 const uploadFeatures = multer({
   storage: createModelStorage("features"),
@@ -232,6 +228,12 @@ const uploadAboutUs = multer({
   fileFilter: imgFilter,
 }).any();
 
+const uploadAboutSection = multer({
+  storage: createModelStorage("aboutSection"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imgFilter,
+}).any();
+
 const uploadMissionVisions = multer({
   storage: createModelStorage("missionVision"),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -242,9 +244,9 @@ const uploadSpeciality = multer({
   storage: createModelStorage("speciality"),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: imgFilter,
-}).any(); 
+}).any();
 
-  const uploadBanner = multer({
+const uploadBanner = multer({
   storage: createModelStorage("banner"),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: imgAndVideoFilter,
@@ -281,6 +283,7 @@ export {
   uplaodGallery,
   uploadTieUp,
   uploadAboutUs,
+  uploadAboutSection,
   uploadMissionVisions,
   uploadBanner,
   uploadWebsiteSetting,
