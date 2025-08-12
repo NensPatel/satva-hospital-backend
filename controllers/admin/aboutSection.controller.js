@@ -58,7 +58,7 @@ export const updateAboutSection = async (req, res) => {
     }
 
     const imageFile = req.files?.find((f) => f.fieldname === "about_img");
-    const about_img = imageFile ? "aboutUs/" + imageFile.filename : "";
+    const about_img = imageFile ? "aboutSection/" + imageFile.filename : "";
 
     if (about_img && findData.about_img) {
       await deleteImage(findData.about_img);
@@ -165,21 +165,21 @@ export const getPaginationData = async (req, res) => {
       .limit(limit);
     const totalRecords = await aboutSectionSchema.countDocuments();
 
-    const data = await Promise.all(
-      aboutSection.map(async (item) => {
-        const aboutTabCount = await aboutTabSchema.countDocuments({
-          about_section_id: item._id,
-        });
-        return { ...item._doc, aboutTabCount };
-      })
-    );
+    // const data = await Promise.all(
+    //   aboutSection.map(async (item) => {
+    //     const aboutTabCount = await aboutTabSchema.countDocuments({
+    //       about_section_id: item._id,
+    //     });
+    //     return { ...item._doc, aboutTabCount };
+    //   })
+    // );
     return res.status(200).send({
       isSuccess: true,
       currentPageNo: page,
       totalPages: Math.ceil(totalRecords / limit),
       totalRecords,
       message: "About Section listing successfully.",
-      data,
+      data: aboutSection,
     });
   } catch (error) {
     return res.status(500).send({
