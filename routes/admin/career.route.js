@@ -17,7 +17,7 @@ import {
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
 import { uploadCareer } from "../../middleware/admin/upload.js";
 
-router.post("/createCareer", verifyTokenAdmin, uploadCareer, validateCreate, createCareer);
+router.post("/createCareer",  uploadCareer, validateCreate, createCareer);
 router.delete("/deleteCareer", verifyTokenAdmin, deleteCareer);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
