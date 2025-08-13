@@ -29,6 +29,14 @@ const createModelStorage = (modelType) => {
         }
       }
 
+      if (modelType === "homePageBanner") {
+        if (file.fieldname === "desktopImageHome") {
+          uploadDir = path.join(uploadDir, "desktop");
+        } else if (file.fieldname === "mobileImageHome") {
+          uploadDir = path.join(uploadDir, "mobile");
+        }
+      }
+
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
@@ -59,6 +67,14 @@ const createModelStorage = (modelType) => {
           storedPath = `public/${modelType}/header/${filename}`;
         } else if (file.fieldname === "footerLogo") {
           storedPath = `public/${modelType}/footer/${filename}`;
+        }
+      }
+
+      if (modelType === "homePageBanner") {
+        if (file.fieldname === "desktopImageHome") {
+          storedPath = `public/${modelType}/desktop/${filename}`;
+        } else if (file.fieldname === "mobileImageHome") {
+          storedPath = `public/${modelType}/mobile/${filename}`;
         }
       }
 
@@ -264,6 +280,16 @@ const uploadWebsiteSetting = multer({
   { name: "footerLogo", maxCount: 1 },
 ]);
 
+
+const uploadHomeBanner = multer({
+  storage: createModelStorage("homePageBanner"),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  fileFilter: imgAndVideoFilter,
+}).fields([
+  { name: "desktopImageHome", maxCount: 10 }, // allow up to 10 desktop images
+  { name: "mobileImageHome", maxCount: 10 },  // allow up to 10 mobile images
+])
+
 const uploadCareer = multer({
   storage: createModelStorage("career"),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -286,6 +312,7 @@ export {
   uploadAboutSection,
   uploadMissionVisions,
   uploadBanner,
+  uploadHomeBanner,
   uploadWebsiteSetting,
   uploadCareer,
   uploadBloodDonationProof,
