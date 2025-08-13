@@ -153,18 +153,42 @@ export const deleteTeam = async (req, res) => {
 };
 
 // Get all team members
+
 export const getAllTeam = async (req, res) => {
   try {
-    const data = await doctorSchema.find().sort({ sort_order_no: 1 });
+    const data = await doctorSchema.find()
+      .sort({ sort_order_no: 1 })
+      .lean();
+
+    const doctorIds = data.map(doc => doc._id);
+    const doctorDetails = await doctorDetailsSchema.find({ doctor_id: { $in: doctorIds } })
+      .sort({ sort_order_no: 1 })
+      .lean();
+
+    const detailsMap = {};
+    doctorDetails.forEach(detail => {
+      if (!detailsMap[detail.doctor_id]) {
+        detailsMap[detail.doctor_id] = [];
+      }
+      detailsMap[detail.doctor_id].push(detail);
+    });
+
+    const result = data.map(doc => ({
+      ...doc,
+      doctorDetails: detailsMap[doc._id] || []
+    }));
+
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
-      data,
+      data: result,
     });
+
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+
 
 // Get team member by ID
 export const getDataById = async (req, res) => {
@@ -284,5 +308,51 @@ export const getDataBySlug = async (req, res) => {
       isSuccess: false,
       message: error.message,
     });
+  }
+};
+
+export const updateDoctorPosition = async (req, res) => {
+  try {
+    const { id, direction } = req.body;
+    const currentItem = await doctorSchema.findById(id);
+    if (!currentItem) {
+      return res.status(404).send({ message: "Doctor not found", isSuccess: false });
+    }
+
+    let swapItem;
+    if (direction === "up") {
+      swapItem = await doctorSchema.findOne({
+        sort_order_no: { $lt: currentItem.sort_order_no },
+        doctor_id: currentItem.doctor_id || null,
+      }).sort({ sort_order_no: -1 });
+    } else if (direction === "down") {
+      swapItem = await doctorSchema.findOne({
+        sort_order_no: { $gt: currentItem.sort_order_no },
+        doctor_id: currentItem.doctor_id || null,
+      }).sort({ sort_order_no: 1 });
+    } else {
+      return res.status(400).send({ message: "Invalid direction", isSuccess: false });
+    }
+
+    if (!swapItem) {
+      return res.status(200).send({
+        isSuccess: false,
+        message: "Cannot move further",
+      });
+    }
+
+    const temp = currentItem.sort_order_no;
+    currentItem.sort_order_no = swapItem.sort_order_no;
+    swapItem.sort_order_no = temp;
+
+    await currentItem.save();
+    await swapItem.save();
+
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Position updated successfully.",
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };

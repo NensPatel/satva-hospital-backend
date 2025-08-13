@@ -15,7 +15,8 @@ import {
   getAllTeam,
   getLastSrNo,
   updateTeamIsActive,
-  getDataBySlug
+  getDataBySlug,
+  updateDoctorPosition
 } from "../../controllers/admin/ourTeam.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
@@ -29,6 +30,7 @@ router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.post("/getDataBySlug/:slug", verifyTokenAdmin, getDataBySlug);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.put("/updateDoctorPosition", verifyTokenAdmin, updateDoctorPosition);
 router.post("/getAllTeam", getAllTeam);
 
 export default router;
