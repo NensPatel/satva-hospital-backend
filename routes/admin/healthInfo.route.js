@@ -28,7 +28,7 @@ router.delete("/deleteHealthInfo", verifyTokenAdmin, deleteHealthInfo);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
-router.post("/getDataBySlug/:slug", verifyTokenAdmin, getDataBySlug);
+router.post("/getDataBySlug/:slug",  getDataBySlug);
 router.get("/getAllHealthInfo", getAllHealthInfo);
 
 export default router;
