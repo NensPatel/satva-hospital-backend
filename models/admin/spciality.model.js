@@ -12,6 +12,12 @@ const specialitiesSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
     short_desc: {
       type: String,
       trim: true,

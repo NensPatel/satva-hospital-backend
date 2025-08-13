@@ -6,7 +6,6 @@ export const createDisorderSection = async (req, res) => {
   try {
     const { sort_order_no, title, content, disorder_id, isActive } = req.body;
 
-    // Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(disorder_id)) {
       return res.status(400).send({
         message: "Invalid disorder_id format.",
@@ -22,7 +21,7 @@ export const createDisorderSection = async (req, res) => {
       });
     }
 
-    const newDisorder = new disorderSectionsSchema({
+    const newSection = new disorderSectionsSchema({
       sort_order_no,
       title,
       content,
@@ -30,12 +29,16 @@ export const createDisorderSection = async (req, res) => {
       isActive: typeof isActive === "boolean" ? isActive : true,
     });
 
-    const saved = await newDisorder.save();
+    const savedSection = await newSection.save();
+
+    await disordersSchema.findByIdAndUpdate(disorder_id, {
+      $push: { disordersDetails: savedSection._id },
+    });
 
     return res.status(200).send({
       isSuccess: true,
       message: "Data created successfully.",
-      data: saved,
+      data: savedSection,
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });

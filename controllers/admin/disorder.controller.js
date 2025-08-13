@@ -23,32 +23,33 @@ export const createDisorder = async (req, res) => {
       return res.status(400).send({ message: "Slug already exists.", isSuccess: false });
     }
 
-    // Initially create disorder without disorderDetails
     const newDisorder = new disordersSchema({
       sort_order_no,
       name,
       slug: cleanedSlug,
       speciality_id,
       isActive: typeof isActive === "boolean" ? isActive : true,
-      disordersDetails: [] // start empty
+      disordersDetails: []
     });
 
     await newDisorder.save();
 
-    // Now find disorder sections that belong to this disorder
+    await specialitiesSchema.findByIdAndUpdate(
+      speciality_id,
+      { $push: { disorders: newDisorder._id } }
+    );
+
     const linkedSections = await disorderSectionSchema.find({
       disorder_id: newDisorder._id
     });
 
-    // Update the disorder with these disorderDetails IDs
     newDisorder.disordersDetails = linkedSections.map(d => d._id);
     await newDisorder.save();
 
-    // Optionally populate before sending back
     const populated = await disordersSchema
       .findById(newDisorder._id)
       .populate("disordersDetails")
-      .populate("speciality_id", "title"); // also include speciality title if you like
+      .populate("speciality_id", "title");
 
     return res.status(200).send({
       isSuccess: true,
@@ -62,25 +63,37 @@ export const createDisorder = async (req, res) => {
 
 export const updateDisorder = async (req, res) => {
   try {
-    const { disorder_id, sort_order_no, name, slug, speciality_id, isActive } = req.body;
+    const { disorder_id, sort_order_no, name, slug, speciality_id, isActive } =
+      req.body;
 
     if (!mongoose.Types.ObjectId.isValid(disorder_id)) {
-      return res.status(400).send({ message: "Invalid disorder_id format.", isSuccess: false });
+      return res
+        .status(400)
+        .send({ message: "Invalid disorder_id format.", isSuccess: false });
     }
 
     const existing = await disordersSchema.findById(disorder_id);
     if (!existing) {
-      return res.status(404).send({ message: "Disorder not found.", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Disorder not found.", isSuccess: false });
     }
 
     if (speciality_id && !mongoose.Types.ObjectId.isValid(speciality_id)) {
-      return res.status(400).send({ message: "Invalid speciality_id format.", isSuccess: false });
+      return res
+        .status(400)
+        .send({ message: "Invalid speciality_id format.", isSuccess: false });
     }
 
     const cleanedSlug = slugify(slug || name, { lower: true, strict: true });
-    const duplicate = await disordersSchema.findOne({ slug: cleanedSlug, _id: { $ne: disorder_id } });
+    const duplicate = await disordersSchema.findOne({
+      slug: cleanedSlug,
+      _id: { $ne: disorder_id },
+    });
     if (duplicate) {
-      return res.status(400).send({ message: "Slug already in use.", isSuccess: false });
+      return res
+        .status(400)
+        .send({ message: "Slug already in use.", isSuccess: false });
     }
 
     const updateObj = {
@@ -92,14 +105,18 @@ export const updateDisorder = async (req, res) => {
     if (speciality_id) updateObj.speciality_id = speciality_id;
 
     // Update disorder
-    const updated = await disordersSchema.findByIdAndUpdate(disorder_id, updateObj, { new: true });
+    const updated = await disordersSchema.findByIdAndUpdate(
+      disorder_id,
+      updateObj,
+      { new: true }
+    );
 
     // Find disorder sections linked to this disorder
     const linkedSections = await disorderSectionSchema.find({
-      disorder_id: updated._id
+      disorder_id: updated._id,
     });
 
-    updated.disordersDetails = linkedSections.map(d => d._id);
+    updated.disordersDetails = linkedSections.map((d) => d._id);
     await updated.save();
 
     // Populate before sending back
@@ -111,18 +128,16 @@ export const updateDisorder = async (req, res) => {
     return res.status(200).send({
       isSuccess: true,
       message: "Disorder updated successfully.",
-      data: populated
+      data: populated,
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
 
-
-
 export const deleteDisorder = async (req, res) => {
   try {
-     const disorder_id = req.query.disorder_id;
+    const disorder_id = req.query.disorder_id;
     if (!mongoose.Types.ObjectId.isValid(disorder_id)) {
       return res.status(400).send({
         message: "Invalid disorder_id format.",
@@ -237,9 +252,9 @@ export const getDataBySlug = async (req, res) => {
     }
 
     const disorder = await disordersSchema
-      .findOne({ slug  })
+      .findOne({ slug })
       .populate("disordersDetails")
-      .lean(); 
+      .lean();
 
     if (!disorder) {
       return res.status(404).json({
@@ -276,23 +291,26 @@ export const listDisordersBySpeciality = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Find disorders by speciality
-   const disorders = await disordersSchema
-  .find({ speciality_id: new mongoose.Types.ObjectId(speciality_id) })
-  .populate()  // populate the details
-  .sort({ sort_order_no: 1 })
-  .skip(skip)
-  .limit(limit);
+    const disorders = await disordersSchema
+      .find({ speciality_id: new mongoose.Types.ObjectId(speciality_id) })
+      .populate() // populate the details
+      .sort({ sort_order_no: 1 })
+      .skip(skip)
+      .limit(limit);
 
-    const totalRecords = await disordersSchema.countDocuments({ speciality_id: new mongoose.Types.ObjectId(speciality_id) });
+    const totalRecords = await disordersSchema.countDocuments({
+      speciality_id: new mongoose.Types.ObjectId(speciality_id),
+    });
 
     // Add disorderDetailsCount for each disorder
     const data = await Promise.all(
       disorders.map(async (disorder) => {
-        const disorderDetailsCount = await disorderSectionSchema.countDocuments({ disorder_id: disorder._id });
+        const disorderDetailsCount = await disorderSectionSchema.countDocuments(
+          { disorder_id: disorder._id }
+        );
         return { ...disorder._doc, disorderDetailsCount };
       })
     );
-    
 
     res.status(200).send({
       isSuccess: true,
@@ -300,7 +318,7 @@ export const listDisordersBySpeciality = async (req, res) => {
       currentPage: page,
       totalPages: Math.ceil(totalRecords / limit),
       totalRecords,
-      message: "Data fetched successfully."
+      message: "Data fetched successfully.",
     });
   } catch (error) {
     res.status(500).send({ message: error.message, isSuccess: false });
@@ -312,7 +330,9 @@ export const updateDisorderIsActive = async (req, res) => {
     const disorder_id = req.params.id;
     const disorder = await disordersSchema.findById(disorder_id);
     if (!disorder) {
-      return res.status(404).send({ message: "disorder not found", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "disorder not found", isSuccess: false });
     }
     disorder.isActive = !disorder.isActive;
     await disorder.save();
@@ -331,22 +351,30 @@ export const updateDisorderPosition = async (req, res) => {
     const { id, direction } = req.body;
     const currentItem = await disordersSchema.findById(id);
     if (!currentItem) {
-      return res.status(404).send({ message: "Disorder not found", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Disorder not found", isSuccess: false });
     }
 
     let swapItem;
     if (direction === "up") {
-      swapItem = await disordersSchema.findOne({
-        sort_order_no: { $lt: currentItem.sort_order_no },
-        speciality_id: currentItem.speciality_id || null,
-      }).sort({ sort_order_no: -1 });
+      swapItem = await disordersSchema
+        .findOne({
+          sort_order_no: { $lt: currentItem.sort_order_no },
+          speciality_id: currentItem.speciality_id || null,
+        })
+        .sort({ sort_order_no: -1 });
     } else if (direction === "down") {
-      swapItem = await disordersSchema.findOne({
-        sort_order_no: { $gt: currentItem.sort_order_no },
-        speciality_id: currentItem.speciality_id || null,
-      }).sort({ sort_order_no: 1 });
+      swapItem = await disordersSchema
+        .findOne({
+          sort_order_no: { $gt: currentItem.sort_order_no },
+          speciality_id: currentItem.speciality_id || null,
+        })
+        .sort({ sort_order_no: 1 });
     } else {
-      return res.status(400).send({ message: "Invalid direction", isSuccess: false });
+      return res
+        .status(400)
+        .send({ message: "Invalid direction", isSuccess: false });
     }
 
     if (!swapItem) {

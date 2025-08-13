@@ -2,11 +2,22 @@ import mongoose from "mongoose";
 import specialitySchema from "../../models/admin/spciality.model.js";
 import { deleteImage } from "../../helpers/common.js";
 import disorderSchema from "../../models/admin/disorder.model.js";
+import slugify from "slugify";
 
 // Create Speciality
 export const createSpeciality = async (req, res) => {
   try {
     const { sort_order_no, title, short_desc, full_desc, isActive } = req.body;
+    let { slug } = req.body;
+    slug = slugify(slug || title, { lower: true, strict: true });
+
+    const existingSlug = await specialitySchema.findOne({ slug });
+    if (existingSlug) {
+      return res.status(400).json({
+        message: "Slug already exists. Please use a unique slug.",
+        isSuccess: false,
+      });
+    }
 
     const imageFile = req.files?.find(
       (file) => file.fieldname === "speciality_img"
@@ -24,6 +35,7 @@ export const createSpeciality = async (req, res) => {
     const newSpeciality = new specialitySchema({
       sort_order_no,
       title,
+      slug,
       short_desc,
       full_desc,
       disorders: [],
@@ -56,7 +68,6 @@ export const createSpeciality = async (req, res) => {
   }
 };
 
-
 // Update Speciality
 export const updateSpeciality = async (req, res) => {
   try {
@@ -68,12 +79,25 @@ export const updateSpeciality = async (req, res) => {
       full_desc,
       isActive,
     } = req.body;
+    let { slug } = req.body;
 
     const findData = await specialitySchema.findById(speciality_id);
     if (!findData) {
       return res
         .status(404)
         .send({ message: "Data not found!", isSuccess: false });
+    }
+
+    slug = slugify(slug || title, { lower: true, strict: true });
+
+    if (slug !== findData.slug) {
+      const existingSlug = await specialitySchema.findOne({ slug });
+      if (existingSlug) {
+        return res.status(400).json({
+          message: "Slug already exists. Please use a unique slug.",
+          isSuccess: false,
+        });
+      }
     }
 
     let imageFile;
@@ -90,6 +114,7 @@ export const updateSpeciality = async (req, res) => {
     const updateObj = {
       sort_order_no,
       title,
+      slug,
       short_desc,
       full_desc,
       isActive,
@@ -126,7 +151,6 @@ export const updateSpeciality = async (req, res) => {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
-
 
 // Delete Speciality
 export const deleteSpeciality = async (req, res) => {
@@ -277,9 +301,9 @@ export const getDataBySlug = async (req, res) => {
     }
 
     const speciality = await specialitySchema
-      .findOne({ title_slug: slug  })
+      .findOne({ slug })
       .populate("disorders")
-      .lean(); 
+      .lean();
 
     if (!speciality) {
       return res.status(404).json({
@@ -301,4 +325,3 @@ export const getDataBySlug = async (req, res) => {
     });
   }
 };
-
