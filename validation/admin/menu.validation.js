@@ -5,7 +5,7 @@ export const validateCreate = async (req, res, next) => {
   const schema = Joi.object({
     position: Joi.number().required(),
     menuName: Joi.string().min(2).max(100).required(),
-    menuUrl: Joi.string().min(2).max(200).required(),
+    menuUrl: Joi.string().required(),
     metaTitle: Joi.string().min(2).max(100).required(),
     metaKeywords: Joi.string().min(2).max(100).required(),
     metaDescription: Joi.string().min(2).max(200).required(),
@@ -28,7 +28,7 @@ export const validateUpdate = async (req, res, next) => {
     menu_id: Joi.string().length(24).required(),
     position: Joi.number().required(),
     menuName: Joi.string().min(2).max(100).required(),
-    menuUrl: Joi.string().min(2).max(200).required(),
+    menuUrl: Joi.string().required(),
     metaTitle: Joi.string().min(2).max(100).required(),
     metaKeywords: Joi.string().min(2).max(100).required(),
     metaDescription: Joi.string().min(2).max(200).required(),
