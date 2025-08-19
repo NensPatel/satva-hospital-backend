@@ -313,3 +313,32 @@ export const doctorDetailsByDoctor = async (req, res) => {
     return res.status(500).json({ isSuccess: false, message: "Server error" });
   }
 };
+
+export const getLastSrNoByDoctor = async (req, res) => {
+  try {
+    const { doctor_id } = req.params; 
+
+    if (!doctor_id) {
+      return res.status(400).json({
+        isSuccess: false,
+        message: "doctor_id is required",
+      });
+    }
+    const lastDetail = await doctordetailSchema.findOne({ doctor_id })
+      .sort({ sort_order_no: -1 });
+
+    const lastNo = lastDetail ? lastDetail.sort_order_no : 0;
+
+    res.status(200).json({
+      isSuccess: true,
+      message: "Last sort order number fetched successfully",
+      data: { sort_order_no: lastNo },
+    });
+  } catch (error) {
+    console.error("Error in getLastSrNoByDoctor:", error);
+    res.status(500).json({
+      isSuccess: false,
+      message: "Something went wrong while fetching last sort order number",
+    });
+  }
+};

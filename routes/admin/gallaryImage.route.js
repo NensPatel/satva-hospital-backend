@@ -16,7 +16,8 @@ import {
   getLastSrNo,
   updateGallaryImageIsActive,
   updateGallaryImagePosition,
-  getImageByGallaryId
+  getImageByGallaryId,
+  getLastSrNoByGallaryTitle
 } from "../../controllers/admin/gallaryImage.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
@@ -31,6 +32,8 @@ router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.get("/getImageByGallaryId/:gallary_id", verifyTokenAdmin, getImageByGallaryId);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.get("/getLastSrNoByGallaryTitle/:galleryTitleId", verifyTokenAdmin, getLastSrNoByGallaryTitle);
+
 router.post("/getAllGalleryImages", getAllGalleryImages);
 
 export default router;

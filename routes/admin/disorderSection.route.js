@@ -17,7 +17,8 @@ import {
   getLastSrNo,
   updateDisorderSectionIsActive,
   updateDisorderSectionPosition,
-  disorderSectionByDisorder
+  disorderSectionByDisorder,
+  getLastSrNoByDisorder
 
 } from "../../controllers/admin/disorderSection.controller.js";
 
@@ -32,6 +33,7 @@ router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.get("/disorderSectionByDisorder/:disorder_id", verifyTokenAdmin, disorderSectionByDisorder);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.get("/getLastSrNoByDisorder/:disorder_id", verifyTokenAdmin, getLastSrNoByDisorder);
 
 router.post("/getAllDisorderSections", getAllDisorderSections);
 router.post("/getDataBySlug/:slug", getDataBySlug);

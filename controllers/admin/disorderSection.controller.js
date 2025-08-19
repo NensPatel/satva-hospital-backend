@@ -170,7 +170,7 @@ export const getDataBySlug = async (req, res) => {
         options: { sort: { sort_order_no: 1 } },
       })
       .populate({
-        path: "speciality_id",
+        path: "disorder_id",
         select: "title slug",
       })
       .lean();
@@ -367,5 +367,38 @@ export const disorderSectionByDisorder = async (req, res) => {
   } catch (error) {
     console.error("Error fetching sections:", error);
     return res.status(500).json({ isSuccess: false, message: "Server error" });
+  }
+};
+
+export const getLastSrNoByDisorder = async (req, res) => {
+  try {
+    const { disorder_id } = req.params;
+
+    if (!disorder_id) {
+      return res.status(400).json({
+        isSuccess: false,
+        message: "disorder_id is required",
+      });
+    }
+
+    const objectId = new mongoose.Types.ObjectId(disorder_id);
+
+    const lastDetail = await disorderSectionsSchema
+      .findOne({ disorder_id: objectId })
+      .sort({ sort_order_no: -1 });
+
+    const lastNo = lastDetail ? lastDetail.sort_order_no : 0;
+
+    res.status(200).json({
+      isSuccess: true,
+      message: "Last sort order number fetched successfully",
+      data: { sort_order_no: lastNo },
+    });
+  } catch (error) {
+    console.error("Error in getLastSrNoByGallaryTitle:", error);
+    res.status(500).json({
+      isSuccess: false,
+      message: "Something went wrong while fetching last sort order number",
+    });
   }
 };

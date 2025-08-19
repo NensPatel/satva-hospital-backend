@@ -16,7 +16,8 @@ import {
   getLastSrNo,
   updateTieUpImageIsActive,
   updateTieUpImagePosition,
-  getImageByTieUpId
+  getImageByTieUpId,
+  getLastSrNoByTieUpTitle
 } from "../../controllers/admin/tieUpImage.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
@@ -31,6 +32,7 @@ router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.get("/getImageByTieUpId/:tieUp_id", verifyTokenAdmin, getImageByTieUpId);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.get("/getLastSrNoByTieUpTitle/:tieUpTitle_id", verifyTokenAdmin, getLastSrNoByTieUpTitle);
 router.post("/getAllTieUpImage", getAllTieUpImage);
 
 export default router;

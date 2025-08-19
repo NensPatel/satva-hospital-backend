@@ -399,3 +399,36 @@ export const updateDisorderPosition = async (req, res) => {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+
+export const getLastSrNoBySpeciality = async (req, res) => {
+  try {
+    const { speciality_id } = req.params;
+
+    if (!speciality_id) {
+      return res.status(400).json({
+        isSuccess: false,
+        message: "speciality_id is required",
+      });
+    }
+
+    const objectId = new mongoose.Types.ObjectId(speciality_id);
+
+    const lastDetail = await disordersSchema
+      .findOne({ speciality_id: objectId })
+      .sort({ sort_order_no: -1 });
+
+    const lastNo = lastDetail ? lastDetail.sort_order_no : 0;
+
+    res.status(200).json({
+      isSuccess: true,
+      message: "Last sort order number fetched successfully",
+      data: { sort_order_no: lastNo },
+    });
+  } catch (error) {
+    console.error("Error in getLastSrNoByGallaryTitle:", error);
+    res.status(500).json({
+      isSuccess: false,
+      message: "Something went wrong while fetching last sort order number",
+    });
+  }
+};

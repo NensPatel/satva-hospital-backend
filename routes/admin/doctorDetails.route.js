@@ -16,7 +16,8 @@ import {
   getLastSrNo,
   updateDoctorDetailsIsActive,
   updateDoctorDetailsPosition,
-  doctorDetailsByDoctor
+  doctorDetailsByDoctor,
+  getLastSrNoByDoctor
 } from "../../controllers/admin/doctorDetails.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
@@ -30,6 +31,7 @@ router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.get("/doctorDetailsByDoctor/:doctor_id", verifyTokenAdmin, doctorDetailsByDoctor);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.get("/getLastSrNoByDoctor/:doctor_id", verifyTokenAdmin, getLastSrNoByDoctor);
 
 router.post("/getAllDoctorDetails", getAllDoctorDetails);
 

@@ -18,6 +18,7 @@ import {
   updateDisorderIsActive,
   updateDisorderPosition,
   getDataBySlug,
+  getLastSrNoBySpeciality
 } from "../../controllers/admin/disorder.controller.js";
 
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
@@ -38,6 +39,7 @@ router.delete("/deleteDisorder", verifyTokenAdmin, deleteDisorder);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.get("/getLastSrNoBySpeciality/:speciality_id", verifyTokenAdmin, getLastSrNoBySpeciality);
 router.post("/getDataBySlug/:slug", verifyTokenAdmin, getDataBySlug);
 router.get(
   "/listDisordersBySpeciality/:speciality_id",
