@@ -22,6 +22,14 @@ export const createDoctorDetails = async (req, res) => {
       });
     }
 
+     if (!sort_order_no) {
+      const lastDetail = await doctordetailSchema
+        .findOne({ doctor_id })
+        .sort({ sort_order_no: -1 });
+
+      sort_order_no = lastDetail ? lastDetail.sort_order_no + 1 : 1;
+    }
+
     const newDisorder = new doctordetailSchema({
       sort_order_no,
       title,

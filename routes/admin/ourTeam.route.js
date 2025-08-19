@@ -28,9 +28,9 @@ router.get("/updateTeamIsActive/:id", verifyTokenAdmin, updateTeamIsActive);
 router.delete("/deleteTeam", verifyTokenAdmin, deleteTeam);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
-router.post("/getDataBySlug/:slug", verifyTokenAdmin, getDataBySlug);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
 router.put("/updateDoctorPosition", verifyTokenAdmin, updateDoctorPosition);
 router.post("/getAllTeam", getAllTeam);
+router.post("/getDataBySlug/:slug",  getDataBySlug);
 
 export default router;
