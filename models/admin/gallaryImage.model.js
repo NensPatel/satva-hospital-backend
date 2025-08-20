@@ -28,12 +28,11 @@ const galleryImageSchema = new mongoose.Schema(
       required: false,
       trim: true,
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
+   
   },
-  { versionKey: false }
+  {
+    timestamps: true,
+  }
 );
 
 export default mongoose.model("gallary_images", galleryImageSchema);
