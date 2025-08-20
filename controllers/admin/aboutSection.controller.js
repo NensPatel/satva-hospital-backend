@@ -223,3 +223,4 @@ export const updateAboutIsActive = async (req, res) => {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+
