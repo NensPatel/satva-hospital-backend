@@ -166,6 +166,9 @@ export const deleteSpeciality = async (req, res) => {
     if (findData.speciality_img) {
       await deleteImage(findData.speciality_img);
     }
+
+    await disorderSchema.deleteMany({ speciality_id: speciality_id });
+
     await specialitySchema.findByIdAndDelete(speciality_id);
 
     return res

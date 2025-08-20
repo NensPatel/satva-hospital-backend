@@ -108,15 +108,19 @@ export const updateMenu = async (req, res) => {
 export const deleteMenu = async (req, res) => {
   try {
     const menu_id = req.query.menu_id;
+
+    await menusSchema.deleteMany({ parentId: menu_id });
+
     const deleted = await menusSchema.findByIdAndDelete(menu_id);
     if (!deleted) {
       return res
         .status(404)
         .send({ message: "Menu not found!", isSuccess: false });
     }
+
     return res.status(200).send({
       isSuccess: true,
-      message: "Menu deleted successfully.",
+      message: "Menu and its submenus deleted successfully.",
     });
   } catch (error) {
     return res.status(500).send({

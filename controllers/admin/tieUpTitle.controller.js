@@ -1,10 +1,15 @@
 import tieUpTSchema from "../../models/admin/tieUpTitle.model.js";
 import tieUpISchema from "../../models/admin/tieUpImage.model.js";
+import { deleteImage } from "../../helpers/common.js";
 
 export const createTieUpTitle = async (req, res) => {
   try {
     const { sort_order_no, title, isActive } = req.body;
-    const saveData = await tieUpTSchema.create({ sort_order_no, title, isActive });
+    const saveData = await tieUpTSchema.create({
+      sort_order_no,
+      title,
+      isActive,
+    });
     return res.status(200).send({
       isSuccess: true,
       message: "Data created successfully.",
@@ -24,7 +29,9 @@ export const updateTieUpTitle = async (req, res) => {
       { new: true }
     );
     if (!updated) {
-      return res.status(404).send({ message: "Data not found!", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Data not found!", isSuccess: false });
     }
     return res.status(200).send({
       isSuccess: true,
@@ -39,13 +46,28 @@ export const updateTieUpTitle = async (req, res) => {
 export const deleteTieUpTitle = async (req, res) => {
   try {
     const tieUp_id = req.query.tieUp_id;
-    const deleted = await tieUpTSchema.findByIdAndDelete(tieUp_id);
-    if (!deleted) {
-      return res.status(404).send({ message: "Data not found!", isSuccess: false });
+
+    const title = await tieUpTSchema.findById(tieUp_id);
+    if (!title) {
+      return res
+        .status(404)
+        .send({ message: "Data not found!", isSuccess: false });
     }
+
+    const relatedImages = await tieUpISchema.find({ tieUpTitle_id: tieUp_id });
+
+    for (const img of relatedImages) {
+      if (img.tieUp_image) {
+        await deleteImage(img.tieUp_image);
+      }
+    }
+
+    await tieUpISchema.deleteMany({ tieUpTitle_id: tieUp_id });
+    await tieUpTSchema.findByIdAndDelete(tieUp_id);
+
     return res.status(200).send({
       isSuccess: true,
-      message: "Data deleted successfully.",
+      message: "TieUp title and all related images deleted successfully.",
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
@@ -70,7 +92,9 @@ export const getDataById = async (req, res) => {
     const tieUp_id = req.body.tieUp_id;
     const data = await tieUpTSchema.findById(tieUp_id);
     if (!data) {
-      return res.status(404).send({ message: "Data not found!", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "Data not found!", isSuccess: false });
     }
     return res.status(200).send({
       isSuccess: true,
@@ -89,7 +113,8 @@ export const getPaginationData = async (req, res) => {
     limit = parseInt(limit);
     const skip = (page - 1) * limit;
 
-    const tieUp = await tieUpTSchema.find()
+    const tieUp = await tieUpTSchema
+      .find()
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);
@@ -98,7 +123,9 @@ export const getPaginationData = async (req, res) => {
 
     const data = await Promise.all(
       tieUp.map(async (item) => {
-        const tieUpImgCount = await tieUpISchema.countDocuments({ tieUpTitle_id: item._id });
+        const tieUpImgCount = await tieUpISchema.countDocuments({
+          tieUpTitle_id: item._id,
+        });
         return { ...item._doc, tieUpImgCount };
       })
     );
@@ -133,7 +160,9 @@ export const updateTieUpIsActive = async (req, res) => {
     const tieUp_id = req.params.id;
     const tieUpTitle = await tieUpTSchema.findById(tieUp_id);
     if (!tieUpTitle) {
-      return res.status(404).send({ message: "tieUpTitle not found", isSuccess: false });
+      return res
+        .status(404)
+        .send({ message: "tieUpTitle not found", isSuccess: false });
     }
     tieUpTitle.isActive = !tieUpTitle.isActive;
     await tieUpTitle.save();
