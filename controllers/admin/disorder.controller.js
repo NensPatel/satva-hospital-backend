@@ -9,18 +9,24 @@ export const createDisorder = async (req, res) => {
     const { sort_order_no, name, slug, speciality_id, isActive } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(speciality_id)) {
-      return res.status(400).send({ message: "Invalid speciality_id format.", isSuccess: false });
+      return res
+        .status(400)
+        .send({ message: "Invalid speciality_id format.", isSuccess: false });
     }
 
     const specialityExists = await specialitiesSchema.findById(speciality_id);
     if (!specialityExists) {
-      return res.status(400).send({ message: "Speciality not found.", isSuccess: false });
+      return res
+        .status(400)
+        .send({ message: "Speciality not found.", isSuccess: false });
     }
 
     const cleanedSlug = slugify(slug || name, { lower: true, strict: true });
     const existingSlug = await disordersSchema.findOne({ slug: cleanedSlug });
     if (existingSlug) {
-      return res.status(400).send({ message: "Slug already exists.", isSuccess: false });
+      return res
+        .status(400)
+        .send({ message: "Slug already exists.", isSuccess: false });
     }
 
     const newDisorder = new disordersSchema({
@@ -29,21 +35,20 @@ export const createDisorder = async (req, res) => {
       slug: cleanedSlug,
       speciality_id,
       isActive: typeof isActive === "boolean" ? isActive : true,
-      disordersDetails: []
+      disordersDetails: [],
     });
 
     await newDisorder.save();
 
-    await specialitiesSchema.findByIdAndUpdate(
-      speciality_id,
-      { $push: { disorders: newDisorder._id } }
-    );
-
-    const linkedSections = await disorderSectionSchema.find({
-      disorder_id: newDisorder._id
+    await specialitiesSchema.findByIdAndUpdate(speciality_id, {
+      $push: { disorders: newDisorder._id },
     });
 
-    newDisorder.disordersDetails = linkedSections.map(d => d._id);
+    const linkedSections = await disorderSectionSchema.find({
+      disorder_id: newDisorder._id,
+    });
+
+    newDisorder.disordersDetails = linkedSections.map((d) => d._id);
     await newDisorder.save();
 
     const populated = await disordersSchema
@@ -54,7 +59,7 @@ export const createDisorder = async (req, res) => {
     return res.status(200).send({
       isSuccess: true,
       message: "Disorder created successfully.",
-      data: populated
+      data: populated,
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
@@ -138,6 +143,7 @@ export const updateDisorder = async (req, res) => {
 export const deleteDisorder = async (req, res) => {
   try {
     const disorder_id = req.query.disorder_id;
+
     if (!mongoose.Types.ObjectId.isValid(disorder_id)) {
       return res.status(400).send({
         message: "Invalid disorder_id format.",
@@ -145,16 +151,21 @@ export const deleteDisorder = async (req, res) => {
       });
     }
 
-    const deleted = await disordersSchema.findByIdAndDelete(disorder_id);
-    if (!deleted) {
-      return res
-        .status(404)
-        .send({ message: "Data not found!", isSuccess: false });
+    const disorder = await disordersSchema.findById(disorder_id);
+    if (!disorder) {
+      return res.status(404).send({
+        message: "Disorder not found!",
+        isSuccess: false,
+      });
     }
+
+    await disorderSectionsSchema.deleteMany({ disorder_id });
+
+    await disordersSchema.findByIdAndDelete(disorder_id);
 
     return res.status(200).send({
       isSuccess: true,
-      message: "Data deleted successfully.",
+      message: "Disorder and all its sections deleted successfully.",
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
