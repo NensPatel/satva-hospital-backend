@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import specialitySchema from "../../models/admin/spciality.model.js";
 import { deleteImage } from "../../helpers/common.js";
 import disorderSchema from "../../models/admin/disorder.model.js";
+import disorderSectionSchema from "../../models/admin/disorderSection.model.js";
 import slugify from "slugify";
 
 // Create Speciality
@@ -155,27 +156,42 @@ export const updateSpeciality = async (req, res) => {
 // Delete Speciality
 export const deleteSpeciality = async (req, res) => {
   try {
-    const speciality_id = req.query.speciality_id;
-    const findData = await specialitySchema.findById(speciality_id);
-    if (!findData) {
-      return res
-        .status(404)
-        .send({ message: "Data not found!", isSuccess: false });
+    const { speciality_id } = req.query;
+
+    // 1. Check if speciality exists
+    const speciality = await specialitySchema.findById(speciality_id);
+    if (!speciality) {
+      return res.status(404).send({
+        isSuccess: false,
+        message: "Speciality not found",
+      });
     }
 
-    if (findData.speciality_img) {
-      await deleteImage(findData.speciality_img);
-    }
+    const disorders = await disorderSchema.find({ speciality_id });
+    const disorderIds = disorders.map((d) => d._id);
 
-    await disorderSchema.deleteMany({ speciality_id: speciality_id });
+    const sectionResult = await disorderSectionSchema.deleteMany({
+      disorder_id: { $in: disorderIds },
+    });
+
+    console.log("Deleted disorder sections:", sectionResult.deletedCount);
+
+    const disorderResult = await disorderSchema.deleteMany({ speciality_id });
+
+    console.log("Deleted disorders:", disorderResult.deletedCount);
 
     await specialitySchema.findByIdAndDelete(speciality_id);
 
-    return res
-      .status(200)
-      .send({ isSuccess: true, message: "Data deleted successfully." });
+    return res.status(200).send({
+      isSuccess: true,
+      message: "Speciality, its disorders, and disorder sections deleted successfully",
+    });
   } catch (error) {
-    return res.status(500).send({ message: error.message, isSuccess: false });
+    console.error("Error in deleteSpeciality:", error);
+    return res.status(500).send({
+      isSuccess: false,
+      message: error.message,
+    });
   }
 };
 

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import disorderSectionsSchema from "../../models/admin/disorderSection.model.js";
-import disordersSchema from "../../models/admin/disorder.model.js";
+import disorderSectionSchema from "../../models/admin/disorderSection.model.js";
+import disorderSchema from "../../models/admin/disorder.model.js";
 
 export const createDisorderSection = async (req, res) => {
   try {
@@ -13,7 +13,7 @@ export const createDisorderSection = async (req, res) => {
       });
     }
 
-    const disorderExists = await disordersSchema.findById(disorder_id);
+    const disorderExists = await disorderSchema.findById(disorder_id);
     if (!disorderExists) {
       return res.status(400).send({
         message: "No such Disorder exists.",
@@ -21,7 +21,7 @@ export const createDisorderSection = async (req, res) => {
       });
     }
 
-    const newSection = new disorderSectionsSchema({
+    const newSection = new disorderSectionSchema({
       sort_order_no,
       title,
       content,
@@ -31,7 +31,7 @@ export const createDisorderSection = async (req, res) => {
 
     const savedSection = await newSection.save();
 
-    await disordersSchema.findByIdAndUpdate(disorder_id, {
+    await disorderSchema.findByIdAndUpdate(disorder_id, {
       $push: { disordersDetails: savedSection._id },
     });
 
@@ -63,7 +63,7 @@ export const updateDisorderSection = async (req, res) => {
       });
     }
 
-    const existingDisorder = await disorderSectionsSchema.findById(
+    const existingDisorder = await disorderSectionSchema.findById(
       disorderSection_id
     );
     if (!existingDisorder) {
@@ -91,7 +91,7 @@ export const updateDisorderSection = async (req, res) => {
       updateObj.disorder_id = disorder_id;
     }
 
-    const updatedDisorder = await disorderSectionsSchema.findByIdAndUpdate(
+    const updatedDisorder = await disorderSectionSchema.findByIdAndUpdate(
       disorderSection_id,
       updateObj,
       { new: true }
@@ -113,25 +113,21 @@ export const updateDisorderSection = async (req, res) => {
 export const deleteDisorderSection = async (req, res) => {
   try {
     const disorderSection_id = req.query.disorderSection_id;
-    if (!mongoose.Types.ObjectId.isValid(disorderSection_id)) {
-      return res.status(400).send({
-        message: "Invalid disorderSection_id format.",
-        isSuccess: false,
-      });
+
+    const section = await disorderSectionSchema.findById(disorderSection_id);
+    if (!section) {
+      return res.status(404).send({ message: "Data not found!", isSuccess: false });
     }
 
-    const deleted = await disorderSectionsSchema.findByIdAndDelete(
-      disorderSection_id
-    );
-    if (!deleted) {
-      return res
-        .status(404)
-        .send({ message: "Data not found!", isSuccess: false });
-    }
+    await disorderSchema.findByIdAndUpdate(section.disorder_id, {
+      $pull: { disordersDetails: disorderSection_id },
+    });
+
+    await disorderSectionSchema.findByIdAndDelete(disorderSection_id);
 
     return res.status(200).send({
       isSuccess: true,
-      message: "Data deleted successfully.",
+      message: "Disorder section deleted successfully.",
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
@@ -140,7 +136,7 @@ export const deleteDisorderSection = async (req, res) => {
 
 export const getAllDisorderSections = async (req, res) => {
   try {
-    const data = await disorderSectionsSchema
+    const data = await disorderSectionSchema
       .find()
       .populate("disorder_id", "name")
       .sort({ sort_order_no: 1 });
@@ -162,7 +158,7 @@ export const getDataBySlug = async (req, res) => {
       return res.status(400).json({ message: "Slug parameter is required" });
     }
 
-    const disorderData = await disordersSchema
+    const disorderData = await disorderSchema
       .findOne({ slug, isActive: true })
       .populate({
         path: "disordersDetails",
@@ -201,7 +197,7 @@ export const getDataById = async (req, res) => {
       });
     }
 
-    const data = await disorderSectionsSchema
+    const data = await disorderSectionSchema
       .findById(disorderSection_id)
       .populate("disorder_id", "name");
     return res.status(200).send({
@@ -222,13 +218,13 @@ export const getPaginationData = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const [data, totalRecords] = await Promise.all([
-      disorderSectionsSchema
+      disorderSectionSchema
         .find()
         .sort({ sort_order_no: 1 })
         .skip(skip)
         .limit(limit)
         .populate("disorder_id", "name"),
-      disorderSectionsSchema.countDocuments(),
+      disorderSectionSchema.countDocuments(),
     ]);
 
     return res.status(200).send({
@@ -246,7 +242,7 @@ export const getPaginationData = async (req, res) => {
 
 export const getLastSrNo = async (req, res) => {
   try {
-    const lastItem = await disorderSectionsSchema
+    const lastItem = await disorderSectionSchema
       .findOne()
       .sort({ sort_order_no: -1 });
     return res.status(200).send({ isSuccess: true, data: lastItem });
@@ -258,7 +254,7 @@ export const getLastSrNo = async (req, res) => {
 export const updateDisorderSectionIsActive = async (req, res) => {
   try {
     const disorderSection_id = req.params.id;
-    const disorderSection = await disorderSectionsSchema.findById(
+    const disorderSection = await disorderSectionSchema.findById(
       disorderSection_id
     );
     if (!disorderSection) {
@@ -281,7 +277,7 @@ export const updateDisorderSectionIsActive = async (req, res) => {
 export const updateDisorderSectionPosition = async (req, res) => {
   try {
     const { id, direction } = req.body;
-    const currentItem = await disorderSectionsSchema.findById(id);
+    const currentItem = await disorderSectionSchema.findById(id);
     if (!currentItem) {
       return res
         .status(404)
@@ -290,14 +286,14 @@ export const updateDisorderSectionPosition = async (req, res) => {
 
     let swapItem;
     if (direction === "up") {
-      swapItem = await disorderSectionsSchema
+      swapItem = await disorderSectionSchema
         .findOne({
           sort_order_no: { $lt: currentItem.sort_order_no },
           disorder_id: currentItem.disorder_id || null,
         })
         .sort({ sort_order_no: -1 });
     } else if (direction === "down") {
-      swapItem = await disorderSectionsSchema
+      swapItem = await disorderSectionSchema
         .findOne({
           sort_order_no: { $gt: currentItem.sort_order_no },
           disorder_id: currentItem.disorder_id || null,
@@ -347,13 +343,13 @@ export const disorderSectionByDisorder = async (req, res) => {
     limit = parseInt(limit);
     const skip = (page - 1) * limit;
 
-    const sections = await disorderSectionsSchema
+    const sections = await disorderSectionSchema
       .find({ disorder_id: new mongoose.Types.ObjectId(disorder_id) })
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);
 
-    const totalCount = await disorderSectionsSchema.countDocuments({
+    const totalCount = await disorderSectionSchema.countDocuments({
       disorder_id: new mongoose.Types.ObjectId(disorder_id),
     });
     const totalPages = Math.ceil(totalCount / limit);
@@ -384,7 +380,7 @@ export const getLastSrNoByDisorder = async (req, res) => {
 
     const objectId = new mongoose.Types.ObjectId(disorder_id);
 
-    const lastDetail = await disorderSectionsSchema
+    const lastDetail = await disorderSectionSchema
       .findOne({ disorder_id: objectId })
       .sort({ sort_order_no: -1 });
 
