@@ -134,14 +134,14 @@ export const deleteMenu = async (req, res) => {
 export const getAllMenu = async (req, res) => {
   try {
     const parents = await menusSchema
-      .find({ parentId: null, isActive: true, showInHeader: true })
+      .find({ parentId: null })
       .sort({ position: 1 })
       .lean();
 
     const parentsWithSubmenus = await Promise.all(
       parents.map(async (parent) => {
         const subMenus = await menusSchema
-          .find({ parentId: parent._id, isActive: true, showInHeader: true })
+          .find({ parentId: parent._id })
           .sort({ position: 1 })
           .lean();
 
