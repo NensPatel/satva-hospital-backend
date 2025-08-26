@@ -6,7 +6,7 @@ export const websiteSettingsValidator = async (req, res, next) => {
     slogan: Joi.string().allow("").required().label("Slogan"),
     description: Joi.string().allow("").required().label("Description"),
     email1: Joi.string().email().allow("").required().label("Primary Email"),
-    email2: Joi.string().email().allow("").required().label("Secondary Email"),
+    // email2: Joi.string().email().allow("").required().label("Secondary Email"),
     contact1: Joi.string()
       .pattern(/^\d{7,15}$/)
       .allow("")
@@ -15,7 +15,7 @@ export const websiteSettingsValidator = async (req, res, next) => {
     contact2: Joi.string()
       .pattern(/^\d{7,15}$/)
       .allow("")
-      .required()
+      // .required()
       .label("Contact Number 2"),
     address: Joi.string().allow("").required().label("Address"),
     mapLink: Joi.string().uri().allow("").required().label("Map Link"),
