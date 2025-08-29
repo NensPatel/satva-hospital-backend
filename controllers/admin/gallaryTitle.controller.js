@@ -1,19 +1,44 @@
 import gallaryTSchema from "../../models/admin/gallaryTitle.model.js";
 import gallaryISchema from "../../models/admin/gallaryImage.model.js";
-import { deleteImage } from "../../helpers/common.js";
+import gallaryCategorySchema from "../../models/admin/gallaryCategory.model.js";
 
 export const createGallaryTitle = async (req, res) => {
   try {
     const { sort_order_no, title, isActive } = req.body;
+    let { slug } = req.body;
+    slug = slugify(slug || title, { lower: true, strict: true });
+
+    const existingSlug = await gallaryTSchema.findOne({ slug });
+    if (existingSlug) {
+      return res.status(400).json({
+        message: "Slug already exists. Please use a unique slug.",
+        isSuccess: false,
+      });
+    }
+
     const saveData = await gallaryTSchema.create({
       sort_order_no,
       title,
       isActive,
+      slug,
+      gallaryCategory: [],
     });
+    await saveData.save();
+    const linkedCategory = await gallaryCategorySchema.find({
+      gallaryTitleId: saveData._id,
+    });
+
+    saveData.gallaryCategory = linkedCategory.map((c) => c._id);
+    await saveData.save();
+
+    const populated = await gallaryTSchema
+      .findById(saveData._id)
+      .populate("gallaryCategory");
+
     return res.status(200).send({
       isSuccess: true,
       message: "Data created successfully.",
-      data: saveData,
+      data: populated,
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
@@ -23,9 +48,36 @@ export const createGallaryTitle = async (req, res) => {
 export const updateGallaryTitle = async (req, res) => {
   try {
     const { gallary_id, sort_order_no, title, isActive } = req.body;
+    let { slug } = req.body;
+
+    const findData = await gallaryTSchema.findById(gallary_id);
+    if (!findData) {
+      return res
+        .status(404)
+        .send({ message: "Data not found!", isSuccess: false });
+    }
+
+    slug = slugify(slug || title, { lower: true, strict: true });
+
+    if (slug !== findData.slug) {
+      const existingSlug = await specialitySchema.findOne({ slug });
+      if (existingSlug) {
+        return res.status(400).json({
+          message: "Slug already exists. Please use a unique slug.",
+          isSuccess: false,
+        });
+      }
+    }
+    const updateObj = {
+      sort_order_no,
+      title,
+      slug,
+      isActive,
+    };
+
     const updated = await gallaryTSchema.findByIdAndUpdate(
       gallary_id,
-      { sort_order_no, title, isActive },
+      updateObj,
       { new: true }
     );
     if (!updated) {
@@ -33,10 +85,21 @@ export const updateGallaryTitle = async (req, res) => {
         .status(404)
         .send({ message: "Data not found!", isSuccess: false });
     }
+    const linkedCategory = await gallaryCategorySchema.find({
+      gallary_id: gallary_id,
+    });
+
+    updated.gallaryCategory = linkedCategory.map((c) => c._id);
+    await updated.save();
+
+    const populated = await gallaryTSchema
+      .findById(gallary_id)
+      .populate("gallaryCategory");
+
     return res.status(200).send({
       isSuccess: true,
       message: "Data updated successfully.",
-      data: updated,
+      data: populated,
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
@@ -45,35 +108,40 @@ export const updateGallaryTitle = async (req, res) => {
 
 export const deleteGallaryTitle = async (req, res) => {
   try {
-    const gallary_id = req.query.gallary_id;
+    const { gallary_id } = req.query;
 
-    const findData = await gallaryTSchema.findById(gallary_id);
-    if (!findData) {
-      return res
-        .status(404)
-        .send({ message: "Gallery title not found!", isSuccess: false });
+    const gallary = await gallaryTSchema.findById(gallary_id);
+    if (!gallary) {
+      return res.status(404).send({
+        isSuccess: false,
+        message: "Gallery Title not found",
+      });
     }
 
-    const images = await gallaryISchema.find({ galleryTitleId: gallary_id });
+    const gallaryCategory = await gallaryCategorySchema.find({ gallary_id });
+    const gallaryCategoryIds = gallaryCategory.map((d) => d._id);
 
-    for (const img of images) {
-      if (img.gallary_image) {
-        await deleteImage(img.gallary_image);
-      }
-    }
+    const sectionResult = await gallaryISchema.deleteMany({
+      gallaryCategoryId: { $in: gallaryCategoryIds },
+    });
 
-    await gallaryISchema.deleteMany({ galleryTitleId: gallary_id });
+    console.log("Deleted gallary images:", sectionResult.deletedCount);
+
+    const gallaryResult = await gallaryISchema.deleteMany({ gallary_id });
+
+    console.log("Deleted gallary images:", gallaryResult.deletedCount);
 
     await gallaryTSchema.findByIdAndDelete(gallary_id);
 
     return res.status(200).send({
       isSuccess: true,
-      message: "Gallery title and its images deleted successfully.",
+      message: "Gallery Title, its categories, and images deleted successfully",
     });
   } catch (error) {
+    console.error("Error in deleteGalleryTitle:", error);
     return res.status(500).send({
-      message: error.message,
       isSuccess: false,
+      message: error.message,
     });
   }
 };
@@ -93,8 +161,10 @@ export const getAllGallaryTitle = async (req, res) => {
 
 export const getDataById = async (req, res) => {
   try {
-    const gallary_id = req.body.gallary_id;
-    const data = await gallaryTSchema.findById(gallary_id);
+    const { gallary_id } = req.body;
+    const data = await gallaryTSchema
+      .findById(gallary_id)
+      .populate("gallaryCategory");
     if (!data) {
       return res
         .status(404)
@@ -127,10 +197,12 @@ export const getPaginationData = async (req, res) => {
 
     const data = await Promise.all(
       gallary.map(async (item) => {
-        const gallaryImgCount = await gallaryISchema.countDocuments({
-          galleryTitleId: item._id,
-        });
-        return { ...item._doc, gallaryImgCount };
+        const gallaryCategoryCount = await gallaryCategorySchema.countDocuments(
+          {
+            gallaryTitleId: item._id,
+          }
+        );
+        return { ...item._doc, gallaryCategoryCount };
       })
     );
 
@@ -177,5 +249,41 @@ export const updateGalleryIsActive = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
+  }
+};
+
+export const getDataBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    if (!slug) {
+      return res.status(400).json({
+        isSuccess: false,
+        message: "Slug is required.",
+      });
+    }
+
+    const gallaryTitle = await gallaryTSchema
+      .findOne({ slug })
+      .populate("gallaryCategory")
+      .lean();
+
+    if (!gallaryTitle) {
+      return res.status(404).json({
+        isSuccess: false,
+        message: "Gallery Title not found.",
+      });
+    }
+
+    return res.status(200).json({
+      isSuccess: true,
+      message: "Data fetched successfully.",
+      data: gallaryTitle,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      isSuccess: false,
+      message: error.message,
+    });
   }
 };

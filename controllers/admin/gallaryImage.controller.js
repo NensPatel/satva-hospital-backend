@@ -1,18 +1,18 @@
 import gallaryISchema from "../../models/admin/gallaryImage.model.js";
-import galleryTSchema from "../../models/admin/gallaryTitle.model.js";
+import gallaryTSchema from "../../models/admin/gallaryTitle.model.js";
+import gallaryCategorySchema from "../../models/admin/gallaryCategory.model.js";
 import { deleteImage } from "../../helpers/common.js";
-import path from "path";
 import mongoose from "mongoose";
 
 export const createGalleryImage = async (req, res) => {
   try {
-    const { sort_order_no, galleryTitleId, img_title, isActive } = req.body;
+    const { sort_order_no, img_title,galleryCategoryId, isActive } = req.body;
 
-    const titleExists = await galleryTSchema.findById(galleryTitleId);
+    const titleExists = await gallaryCategorySchema.findById(galleryCategoryId);
     if (!titleExists) {
       return res.status(400).send({
         isSuccess: false,
-        message: "Invalid galleryTitleId. Gallery title does not exist.",
+        message: "Invalid galleryCategoryId. Gallery category does not exist.",
       });
     }
 
@@ -23,7 +23,7 @@ export const createGalleryImage = async (req, res) => {
 
     const createObj = {
       sort_order_no,
-      galleryTitleId,
+      galleryCategoryId,
       img_title,
       isActive,
     };
@@ -34,6 +34,10 @@ export const createGalleryImage = async (req, res) => {
 
     const saveData = new gallaryISchema(createObj);
     await saveData.save();
+
+    await gallaryCategorySchema.findByIdAndUpdate(galleryCategoryId, {
+      $push: { galleryImages: saveData._id },
+    });
 
     return res.status(200).send({
       isSuccess: true,
@@ -50,7 +54,7 @@ export const updateGalleryImage = async (req, res) => {
     const {
       gallary_image_id,
       sort_order_no,
-      galleryTitleId,
+      galleryCategoryId,
       img_title,
       isActive,
     } = req.body;
@@ -62,11 +66,11 @@ export const updateGalleryImage = async (req, res) => {
         .send({ message: "Data not found!", isSuccess: false });
     }
 
-    const titleExists = await galleryTSchema.findById(galleryTitleId);
+    const titleExists = await gallaryCategorySchema.findById(galleryCategoryId);
     if (!titleExists) {
       return res.status(400).send({
         isSuccess: false,
-        message: "Invalid galleryTitleId. Gallery title does not exist.",
+        message: "Invalid galleryCategoryId. Gallery title does not exist.",
       });
     }
 
@@ -77,7 +81,7 @@ export const updateGalleryImage = async (req, res) => {
 
     const updateObj = {
       sort_order_no,
-      galleryTitleId,
+      galleryCategoryId,
       img_title,
       isActive,
     };
@@ -88,6 +92,11 @@ export const updateGalleryImage = async (req, res) => {
     if (imageFile) {
       updateObj.gallary_image = "gallery/" + imageFile.filename;
     }
+
+      if (galleryCategoryId) {
+      updateObj.galleryCategoryId = galleryCategoryId;
+    }
+
 
     const updated = await gallaryISchema.findByIdAndUpdate(
       gallary_image_id,
@@ -115,6 +124,10 @@ export const deleteGalleryImage = async (req, res) => {
         .send({ message: "Data not found!", isSuccess: false });
     }
 
+    await gallaryCategorySchema.findByIdAndUpdate(findData.galleryCategoryId, {
+      $pull: { galleryImages: gallary_image_id },
+    });
+
     if (findData.gallary_image) {
       await deleteImage(findData.gallary_image);
     }
@@ -132,7 +145,10 @@ export const deleteGalleryImage = async (req, res) => {
 
 export const getAllGalleryImages = async (req, res) => {
   try {
-    const data = await gallaryISchema.find().sort({ sort_order_no: 1 });
+    const data = await gallaryISchema
+      .find()
+      .populate("galleryCategoryId", "name")
+      .sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -143,10 +159,15 @@ export const getAllGalleryImages = async (req, res) => {
   }
 };
 
+
+
+
 export const getDataById = async (req, res) => {
   try {
     const { gallary_image_id } = req.body;
-    const data = await gallaryISchema.findById(gallary_image_id);
+    const data = await gallaryISchema
+      .findById(gallary_image_id)
+      .populate("galleryCategoryId", "name");
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",
@@ -159,18 +180,19 @@ export const getDataById = async (req, res) => {
 
 export const getPaginationData = async (req, res) => {
   try {
-    let { page = 1, limit = 10, galleryTitleId } = req.body;
+    let { page = 1, limit = 10, galleryCategoryId } = req.body;
     page = parseInt(page);
     limit = parseInt(limit);
     const skip = (page - 1) * limit;
 
-    const filter = galleryTitleId ? { galleryTitleId } : {};
+    const filter = galleryCategoryId ? { galleryCategoryId } : {};
 
     const data = await gallaryISchema
       .find(filter)
       .sort({ sort_order_no: 1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .populate("galleryCategoryId", "name");
 
     const totalRecords = await gallaryISchema.countDocuments(filter);
 
@@ -240,14 +262,14 @@ export const updateGallaryImagePosition = async (req, res) => {
       swapItem = await gallaryISchema
         .findOne({
           sort_order_no: { $lt: currentItem.sort_order_no },
-          gallary_id: currentItem.gallary_id || null,
+          galleryCategoryId: currentItem.galleryCategoryId || null,
         })
         .sort({ sort_order_no: -1 });
     } else if (direction === "down") {
       swapItem = await gallaryISchema
         .findOne({
           sort_order_no: { $gt: currentItem.sort_order_no },
-          gallary_id: currentItem.gallary_id || null,
+          galleryCategoryId: currentItem.galleryCategoryId || null,
         })
         .sort({ sort_order_no: 1 });
     } else {
@@ -279,15 +301,15 @@ export const updateGallaryImagePosition = async (req, res) => {
   }
 };
 
-export const getImageByGallaryId = async (req, res) => {
+export const getImageByGalleryCategory = async (req, res) => {
   try {
-    const { gallary_id } = req.params;
+    const { galleryCategoryId } = req.params;
     let { page = 1, limit = 10 } = req.query;
 
-    if (!gallary_id || !mongoose.Types.ObjectId.isValid(gallary_id)) {
+    if (!galleryCategoryId || !mongoose.Types.ObjectId.isValid(galleryCategoryId)) {
       return res
         .status(400)
-        .json({ isSuccess: false, message: "Valid gallary_id is required" });
+        .json({ isSuccess: false, message: "Valid galleryCategoryId is required" });
     }
 
     page = parseInt(page);
@@ -295,13 +317,13 @@ export const getImageByGallaryId = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const sections = await gallaryISchema
-      .find({ galleryTitleId: new mongoose.Types.ObjectId(gallary_id) })
+      .find({ galleryCategoryId: new mongoose.Types.ObjectId(galleryCategoryId) })
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);
 
     const totalCount = await gallaryISchema.countDocuments({
-      galleryTitleId: new mongoose.Types.ObjectId(gallary_id),
+      galleryCategoryId: new mongoose.Types.ObjectId(galleryCategoryId),
     });
     const totalPages = Math.ceil(totalCount / limit);
 
@@ -318,21 +340,21 @@ export const getImageByGallaryId = async (req, res) => {
   }
 };
 
-export const getLastSrNoByGallaryTitle = async (req, res) => {
+export const getLastSrNoByGalleryCategory = async (req, res) => {
   try {
-    const { galleryTitleId } = req.params;
+    const { galleryCategoryId } = req.params;
 
-    if (!galleryTitleId) {
+    if (!galleryCategoryId) {
       return res.status(400).json({
         isSuccess: false,
-        message: "galleryTitleId is required",
+        message: "galleryCategoryId is required",
       });
     }
 
-    const objectId = new mongoose.Types.ObjectId(galleryTitleId);
+    const objectId = new mongoose.Types.ObjectId(galleryCategoryId);
 
     const lastDetail = await gallaryISchema
-      .findOne({ galleryTitleId: objectId })
+      .findOne({ galleryCategoryId: objectId })
       .sort({ sort_order_no: -1 });
 
     const lastNo = lastDetail ? lastDetail.sort_order_no : 0;

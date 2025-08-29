@@ -7,9 +7,9 @@ const galleryImageSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
-    galleryTitleId: {
+    galleryCategoryId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "gallery_title",
+      ref: "gallery_category",
       required: true,
       index: true,
     },
@@ -24,7 +24,7 @@ const galleryImageSchema = new mongoose.Schema(
       index: true,
     },
     img_title: {
-      type: String, // add this field if you want to store display name
+      type: String, 
       required: false,
       trim: true,
     },

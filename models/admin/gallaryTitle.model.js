@@ -13,6 +13,16 @@ const galleryTitleSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
+    slug: {
+      type: String,
+      unique: true,
+      trim: true
+    },
+    gallaryCategory: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "gallary_category" }],
+      trim: true,
+      default: [],
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -24,4 +34,4 @@ const galleryTitleSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("gallary_title", galleryTitleSchema);;
+export default mongoose.model("gallary_title", galleryTitleSchema);
