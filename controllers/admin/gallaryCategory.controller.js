@@ -334,25 +334,23 @@ export const listCategoriesByTitle = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    // Find gallary categories by title
     const gallaryCategories = await gallaryCategorySchema
       .find({ gallaryTitleId: new mongoose.Types.ObjectId(gallaryTitleId) })
-      .populate() // populate the details
       .sort({ sort_order_no: 1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .populate("gallaryTitleId", "categoryName");
 
     const totalRecords = await gallaryCategorySchema.countDocuments({
-      gallaryCategoryId: new mongoose.Types.ObjectId(gallaryTitleId),
+      gallaryTitleId: new mongoose.Types.ObjectId(gallaryTitleId),
     });
 
-    // Add gallaryImageCount for each gallaryCategory
     const data = await Promise.all(
       gallaryCategories.map(async (gallaryCategory) => {
         const gallaryImageCount = await gallaryISchema.countDocuments({
-          gallaryCategoryId: gallaryCategory._id,
+          galleryCategoryId: gallaryCategory._id,   
         });
-        return { ...gallaryCategory._doc, gallaryImageCount };
+        return { ...gallaryCategory.toObject(), gallaryImageCount };
       })
     );
 
@@ -368,6 +366,8 @@ export const listCategoriesByTitle = async (req, res) => {
     res.status(500).send({ message: error.message, isSuccess: false });
   }
 };
+
+
 
 export const updateCategoryIsActive = async (req, res) => {
   try {
