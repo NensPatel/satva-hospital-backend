@@ -167,7 +167,7 @@ export const getDataBySlug = async (req, res) => {
         populate: { path: "disorder_id", select: "title slug" },
       })
       .populate({   path: "speciality_id",
-        select: "name slug"
+        select: "title slug"
       })
       .lean();
 

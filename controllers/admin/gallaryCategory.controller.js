@@ -7,7 +7,8 @@ import slugify from "slugify";
 
 export const createGallaryCategory = async (req, res) => {
   try {
-    const { sort_order_no, categoryName, slug, gallaryTitleId, isActive } =
+    const { sort_order_no, categoryName, 
+       gallaryTitleId, isActive } =
       req.body;
 
     if (!mongoose.Types.ObjectId.isValid(gallaryTitleId)) {
@@ -23,23 +24,9 @@ export const createGallaryCategory = async (req, res) => {
         .send({ message: "Gallary title not found.", isSuccess: false });
     }
 
-    const cleanedSlug = slugify(slug || categoryName, {
-      lower: true,
-      strict: true,
-    });
-    const existingSlug = await gallaryCategorySchema.findOne({
-      slug: cleanedSlug,
-    });
-    if (existingSlug) {
-      return res
-        .status(400)
-        .send({ message: "Slug already exists.", isSuccess: false });
-    }
-
     const newGallaryCategory = new gallaryCategorySchema({
       sort_order_no,
       categoryName,
-      slug: cleanedSlug,
       gallaryTitleId,
       isActive: typeof isActive === "boolean" ? isActive : true,
       gallaryImagesId: [],
@@ -79,7 +66,7 @@ export const updateGallaryCategory = async (req, res) => {
       gallaryCategoryId,
       sort_order_no,
       categoryName,
-      slug,
+      // slug,
       gallaryTitleId,
       isActive,
     } = req.body;
@@ -104,24 +91,9 @@ export const updateGallaryCategory = async (req, res) => {
         .send({ message: "Invalid gallaryTitleId format.", isSuccess: false });
     }
 
-    const cleanedSlug = slugify(slug || categoryName, {
-      lower: true,
-      strict: true,
-    });
-    const duplicate = await gallaryCategorySchema.findOne({
-      slug: cleanedSlug,
-      _id: { $ne: gallaryCategoryId },
-    });
-    if (duplicate) {
-      return res
-        .status(400)
-        .send({ message: "Slug already in use.", isSuccess: false });
-    }
-
     const updateObj = {
       sort_order_no,
       categoryName,
-      slug: cleanedSlug,
       isActive,
     };
     if (gallaryTitleId) updateObj.gallaryTitleId = gallaryTitleId;
@@ -287,43 +259,6 @@ export const getLastSrNo = async (req, res) => {
     return res.status(200).send({ isSuccess: true, data: lastItem });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
-  }
-};
-
-export const getDataBySlug = async (req, res) => {
-  try {
-    const { slug } = req.params;
-    if (!slug) {
-      return res.status(400).json({
-        isSuccess: false,
-        message: "Slug is required.",
-      });
-    }
-
-    const gallaryCategory = await gallaryCategorySchema
-      .findOne({ slug })
-      .populate("gallaryImagesId")
-      .populate("gallaryTitleId", "categoryName")
-      .lean();
-
-    if (!gallaryCategory) {
-      return res.status(404).json({
-        isSuccess: false,
-        message: "Gallary category not found.",
-      });
-    }
-
-    return res.status(200).json({
-      isSuccess: true,
-      message: "Data fetched successfully.",
-      data: gallaryCategory,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      isSuccess: false,
-      message: error.message,
-    });
   }
 };
 

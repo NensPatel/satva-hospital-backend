@@ -14,7 +14,6 @@ import {
   getDataById,
   getAllCategories,
   getLastSrNo,
-  getDataBySlug,
   listCategoriesByTitle,
   updateCategoryIsActive,
   updateCategoryPosition,
@@ -30,7 +29,6 @@ router.delete("/deleteGallaryCategory", verifyTokenAdmin, deleteGallaryCategory)
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
-router.post("/getDataBySlug/:slug", getDataBySlug);
 
 router.get("/updateCategoryIsActive/:id", verifyTokenAdmin, updateCategoryIsActive);
 router.put("/updateCategoryPosition", verifyTokenAdmin, updateCategoryPosition);

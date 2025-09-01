@@ -11,12 +11,7 @@ const gallaryCategorySchema = new mongoose.Schema(
       type: String,
       trim: true,
       index: true,
-    },
-    slug: {
-      type: String,
-      unique: true,
-      trim: true,
-    },
+    },  
     gallaryTitleId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "gallary_title",
