@@ -9,7 +9,7 @@ const galleryImageSchema = new mongoose.Schema(
     },
     galleryCategoryId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "gallery_category",
+      ref: "gallary_category",
       required: true,
       index: true,
     },

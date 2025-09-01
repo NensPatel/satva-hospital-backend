@@ -183,7 +183,7 @@ export const deleteGallaryCategory = async (req, res) => {
 
     return res.status(200).send({
       isSuccess: true,
-      message: "Gallary category and all its sections deleted successfully.",
+      message: "Gallary category and all its images deleted successfully.",
     });
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
