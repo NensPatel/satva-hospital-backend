@@ -2,30 +2,20 @@ import gallaryTSchema from "../../models/admin/gallaryTitle.model.js";
 import gallaryISchema from "../../models/admin/gallaryImage.model.js";
 import gallaryCategorySchema from "../../models/admin/gallaryCategory.model.js";
 import { deleteImage } from "../../helpers/common.js";
-import slugify from "slugify";
+// import slugify from "slugify";
 
 export const createGallaryTitle = async (req, res) => {
   try {
     const { sort_order_no, title, isActive } = req.body;
-    let { slug } = req.body;
-    slug = slugify(slug || title, { lower: true, strict: true });
-
-    const existingSlug = await gallaryTSchema.findOne({ slug });
-    if (existingSlug) {
-      return res.status(400).json({
-        message: "Slug already exists. Please use a unique slug.",
-        isSuccess: false,
-      });
-    }
 
     const saveData = await gallaryTSchema.create({
       sort_order_no,
       title,
       isActive,
-      slug,
       gallaryCategory: [],
     });
     await saveData.save();
+
     const linkedCategory = await gallaryCategorySchema.find({
       gallaryTitleId: saveData._id,
     });
@@ -50,7 +40,6 @@ export const createGallaryTitle = async (req, res) => {
 export const updateGallaryTitle = async (req, res) => {
   try {
     const { gallary_id, sort_order_no, title, isActive } = req.body;
-    let { slug } = req.body;
 
     const findData = await gallaryTSchema.findById(gallary_id);
     if (!findData) {
@@ -59,21 +48,9 @@ export const updateGallaryTitle = async (req, res) => {
         .send({ message: "Data not found!", isSuccess: false });
     }
 
-    slug = slugify(slug || title, { lower: true, strict: true });
-
-    if (slug !== findData.slug) {
-      const existingSlug = await specialitySchema.findOne({ slug });
-      if (existingSlug) {
-        return res.status(400).json({
-          message: "Slug already exists. Please use a unique slug.",
-          isSuccess: false,
-        });
-      }
-    }
     const updateObj = {
       sort_order_no,
       title,
-      slug,
       isActive,
     };
 
@@ -87,6 +64,7 @@ export const updateGallaryTitle = async (req, res) => {
         .status(404)
         .send({ message: "Data not found!", isSuccess: false });
     }
+
     const linkedCategory = await gallaryCategorySchema.find({
       gallary_id: gallary_id,
     });
@@ -258,38 +236,38 @@ export const updateGalleryIsActive = async (req, res) => {
   }
 };
 
-export const getDataBySlug = async (req, res) => {
-  try {
-    const { slug } = req.params;
-    if (!slug) {
-      return res.status(400).json({
-        isSuccess: false,
-        message: "Slug is required.",
-      });
-    }
+// export const getDataBySlug = async (req, res) => {
+//   try {
+//     const { slug } = req.params;
+//     if (!slug) {
+//       return res.status(400).json({
+//         isSuccess: false,
+//         message: "Slug is required.",
+//       });
+//     }
 
-    const gallaryTitle = await gallaryTSchema
-      .findOne({ slug })
-      .populate("gallaryCategory")
-      .lean();
+//     const gallaryTitle = await gallaryTSchema
+//       .findOne({ slug })
+//       .populate("gallaryCategory")
+//       .lean();
 
-    if (!gallaryTitle) {
-      return res.status(404).json({
-        isSuccess: false,
-        message: "Gallery Title not found.",
-      });
-    }
+//     if (!gallaryTitle) {
+//       return res.status(404).json({
+//         isSuccess: false,
+//         message: "Gallery Title not found.",
+//       });
+//     }
 
-    return res.status(200).json({
-      isSuccess: true,
-      message: "Data fetched successfully.",
-      data: gallaryTitle,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      isSuccess: false,
-      message: error.message,
-    });
-  }
-};
+//     return res.status(200).json({
+//       isSuccess: true,
+//       message: "Data fetched successfully.",
+//       data: gallaryTitle,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       isSuccess: false,
+//       message: error.message,
+//     });
+//   }
+// };

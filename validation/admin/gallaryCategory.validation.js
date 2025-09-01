@@ -4,6 +4,7 @@ export const validateCreate = async (req, res, next) => {
   const schema = Joi.object({
     sort_order_no: Joi.number().required(),
     categoryName: Joi.string().required(),
+    slug: Joi.string().required(),
     gallaryTitleId: Joi.string().optional(),
     isActive: Joi.boolean().optional(),
   });
@@ -19,6 +20,7 @@ export const validateUpdate = async (req, res, next) => {
     gallaryCategoryId: Joi.string().length(24).required(),
     sort_order_no: Joi.number().required(),
     categoryName: Joi.string().required(),
+    slug: Joi.string().required(),
     gallaryTitleId: Joi.string().optional(),
     isActive: Joi.boolean().optional(),
   });

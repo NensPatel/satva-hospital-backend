@@ -17,6 +17,11 @@ const gallaryCategorySchema = new mongoose.Schema(
       ref: "gallary_title",
       required: true,
     },
+    slug: {
+      type: String,
+      unique: true,
+      trim: true,
+    },
     gallaryImagesId: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "gallary_images" }],
       trim: true,

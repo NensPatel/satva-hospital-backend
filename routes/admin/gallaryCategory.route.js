@@ -14,6 +14,7 @@ import {
   getDataById,
   getAllCategories,
   getLastSrNo,
+  getDataBySlug,
   listCategoriesByTitle,
   updateCategoryIsActive,
   updateCategoryPosition,
@@ -23,19 +24,47 @@ import {
 import { verifyTokenAdmin } from "../../middleware/admin/admin.auth.js";
 import { uplaodGallery } from "../../middleware/admin/upload.js";
 
-router.post("/createGallaryCategory", verifyTokenAdmin, uplaodGallery, validateCreate, createGallaryCategory);
-router.put("/updateGallaryCategory", verifyTokenAdmin, uplaodGallery, validateUpdate, updateGallaryCategory);
-router.delete("/deleteGallaryCategory", verifyTokenAdmin, deleteGallaryCategory);
+router.post(
+  "/createGallaryCategory",
+  verifyTokenAdmin,
+  uplaodGallery,
+  validateCreate,
+  createGallaryCategory
+);
+router.put(
+  "/updateGallaryCategory",
+  verifyTokenAdmin,
+  uplaodGallery,
+  validateUpdate,
+  updateGallaryCategory
+);
+router.delete(
+  "/deleteGallaryCategory",
+  verifyTokenAdmin,
+  deleteGallaryCategory
+);
 router.post("/getPaginationData", verifyTokenAdmin, getPaginationData);
 router.post("/getDataById", verifyTokenAdmin, getDataById);
 router.get("/getLastSrNo", verifyTokenAdmin, getLastSrNo);
+router.post("/getDataBySlug/:slug", getDataBySlug);
 
-router.get("/updateCategoryIsActive/:id", verifyTokenAdmin, updateCategoryIsActive);
+router.get(
+  "/updateCategoryIsActive/:id",
+  verifyTokenAdmin,
+  updateCategoryIsActive
+);
 router.put("/updateCategoryPosition", verifyTokenAdmin, updateCategoryPosition);
-router.get("/listCategoriesByTitle/:gallaryTitleId", verifyTokenAdmin, listCategoriesByTitle);
-router.get("/getLastSrNoByGallaryTitle/:gallaryTitleId", verifyTokenAdmin, getLastSrNoByGallaryTitle);
+router.get(
+  "/listCategoriesByTitle/:gallaryTitleId",
+  verifyTokenAdmin,
+  listCategoriesByTitle
+);
+router.get(
+  "/getLastSrNoByGallaryTitle/:gallaryTitleId",
+  verifyTokenAdmin,
+  getLastSrNoByGallaryTitle
+);
 
 router.post("/getAllCategories", getAllCategories);
 
 export default router;
-
