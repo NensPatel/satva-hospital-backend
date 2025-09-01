@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import gallaryTSchema from "../../models/admin/gallaryTitle.model.js";
 import gallaryISchema from "../../models/admin/gallaryImage.model.js";
 import gallaryCategorySchema from "../../models/admin/gallaryCategory.model.js";
+import { deleteImage } from "../../helpers/common.js";
 import slugify from "slugify";
 
 export const createGallaryCategory = async (req, res) => {
@@ -156,39 +157,44 @@ export const updateGallaryCategory = async (req, res) => {
   }
 };
 
+
+
 export const deleteGallaryCategory = async (req, res) => {
   try {
-    const gallaryCategoryId = req.query.gallaryCategoryId;
+    const { category_id } = req.query;
 
-    if (!mongoose.Types.ObjectId.isValid(gallaryCategoryId)) {
-      return res.status(400).send({
-        message: "Invalid gallaryCategoryId format.",
-        isSuccess: false,
-      });
-    }
-
-    const gallaryCategory = await gallaryCategorySchema.findById(
-      gallaryCategoryId
-    );
-    if (!gallaryCategory) {
+    const category = await gallaryCategorySchema.findById(category_id);
+    if (!category) {
       return res.status(404).send({
-        message: "Gallary category not found!",
         isSuccess: false,
+        message: "Gallery Category not found",
       });
     }
+    const images = await gallaryISchema.find({ galleryCategoryId: category_id });
 
-    await gallaryISchema.deleteMany({ gallaryCategoryId });
+    for (const img of images) {
+      if (img.gallary_image) {
+        await deleteImage(img.gallary_image);
+      }
+    }
+    await gallaryISchema.deleteMany({ galleryCategoryId: category_id });
 
-    await gallaryCategorySchema.findByIdAndDelete(gallaryCategoryId);
+    await gallaryCategorySchema.findByIdAndDelete(category_id);
 
     return res.status(200).send({
       isSuccess: true,
-      message: "Gallary category and all its images deleted successfully.",
+      message: "Gallery Category and its images deleted successfully (DB + Files)",
     });
   } catch (error) {
-    return res.status(500).send({ message: error.message, isSuccess: false });
+    console.error("Error in deleteGallaryCategory:", error);
+    return res.status(500).send({
+      isSuccess: false,
+      message: error.message,
+    });
   }
 };
+
+
 
 export const getAllCategories = async (req, res) => {
   try {

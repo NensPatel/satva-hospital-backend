@@ -1,6 +1,8 @@
 import gallaryTSchema from "../../models/admin/gallaryTitle.model.js";
 import gallaryISchema from "../../models/admin/gallaryImage.model.js";
 import gallaryCategorySchema from "../../models/admin/gallaryCategory.model.js";
+import { deleteImage } from "../../helpers/common.js";
+import slugify from "slugify";
 
 export const createGallaryTitle = async (req, res) => {
   try {
@@ -118,33 +120,37 @@ export const deleteGallaryTitle = async (req, res) => {
       });
     }
 
-    const gallaryCategory = await gallaryCategorySchema.find({ gallary_id });
-    const gallaryCategoryIds = gallaryCategory.map((d) => d._id);
+    const gallaryCategories = await gallaryCategorySchema.find({ gallaryTitleId: gallary_id });
+    const gallaryCategoryIds = gallaryCategories.map((d) => d._id);
 
-    const sectionResult = await gallaryISchema.deleteMany({
-      gallaryCategoryId: { $in: gallaryCategoryIds },
-    });
+    const images = await gallaryISchema.find({ galleryCategoryId: { $in: gallaryCategoryIds } });
 
-    console.log("Deleted gallary images:", sectionResult.deletedCount);
+    for (const img of images) {
+      if (img.gallary_image) {
+        await deleteImage(img.gallary_image);
+      }
+    }
 
-    const gallaryResult = await gallaryISchema.deleteMany({ gallary_id });
+    await gallaryISchema.deleteMany({ galleryCategoryId: { $in: gallaryCategoryIds } });
 
-    console.log("Deleted gallary images:", gallaryResult.deletedCount);
+    await gallaryCategorySchema.deleteMany({ gallaryTitleId: gallary_id });
 
     await gallaryTSchema.findByIdAndDelete(gallary_id);
 
     return res.status(200).send({
       isSuccess: true,
-      message: "Gallery Title, its categories, and images deleted successfully",
+      message: "Gallery Title, its categories, and images deleted successfully (DB + Files)",
     });
   } catch (error) {
-    console.error("Error in deleteGalleryTitle:", error);
+    console.error("Error in deleteGallaryTitle:", error);
     return res.status(500).send({
       isSuccess: false,
       message: error.message,
     });
   }
 };
+
+
 
 export const getAllGallaryTitle = async (req, res) => {
   try {
