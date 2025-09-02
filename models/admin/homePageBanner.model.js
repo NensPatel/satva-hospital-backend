@@ -27,14 +27,14 @@ const homePageBannerSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    desktopImageHome: [{ 
+    desktopImageHome: { 
         type: String, 
         trim: true 
-    }],
-    mobileImageHome: [{ 
-        type: String, 
-        trim: true 
-    }],
+    },
+    mobileImageHome: {
+        type: String,
+        trim: true
+    },
     isActive: {
       type: Boolean,
       default: true,

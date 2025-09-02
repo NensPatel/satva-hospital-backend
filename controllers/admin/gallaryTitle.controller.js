@@ -128,8 +128,6 @@ export const deleteGallaryTitle = async (req, res) => {
   }
 };
 
-
-
 export const getAllGallaryTitle = async (req, res) => {
   try {
     const data = await gallaryTSchema.find().sort({ sort_order_no: 1 });
@@ -162,7 +160,7 @@ export const getDataById = async (req, res) => {
   } catch (error) {
     return res.status(500).send({ message: error.message, isSuccess: false });
   }
-};
+}; 
 
 export const getPaginationData = async (req, res) => {
   try {
