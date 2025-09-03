@@ -174,11 +174,7 @@ export const deleteSpeciality = async (req, res) => {
       disorder_id: { $in: disorderIds },
     });
 
-    console.log("Deleted disorder sections:", sectionResult.deletedCount);
-
     const disorderResult = await disorderSchema.deleteMany({ speciality_id });
-
-    console.log("Deleted disorders:", disorderResult.deletedCount);
 
     await specialitySchema.findByIdAndDelete(speciality_id);
 
