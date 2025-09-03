@@ -22,6 +22,11 @@ export const updateEmailSettings = async (req, res) => {
       ccEmailBlood,
       bloodDonateTemplate,
       bloodDonateSubject,
+      fromEmailAppointment,
+      bccEmailAppointment,
+      ccEmailAppointment,
+      AppointmentTemplate,
+      AppointmentSubject
 
       
     } = req.body;
@@ -47,6 +52,12 @@ export const updateEmailSettings = async (req, res) => {
       updatedData["ccEmailBlood"] = ccEmailBlood;
       updatedData["bloodDonateTemplate"] = bloodDonateTemplate;
       updatedData["bloodDonateSubject"] = bloodDonateSubject;
+      updatedData["fromEmailAppointment"] = fromEmailAppointment;
+      updatedData["bccEmailAppointment"] = bccEmailAppointment;
+      updatedData["ccEmailAppointment"] = ccEmailAppointment;
+      updatedData["AppointmentTemplate"] = AppointmentTemplate;
+      updatedData["AppointmentSubject"] = AppointmentSubject;
+
       await emailSettingsSchema
         .findByIdAndUpdate(findData.id, updatedData, { new: true })
         .then((setting) => {
@@ -82,7 +93,12 @@ export const updateEmailSettings = async (req, res) => {
         bccEmailBlood,
         ccEmailBlood,
         bloodDonateTemplate,    
-        bloodDonateSubject
+        bloodDonateSubject,
+        fromEmailAppointment,
+        bccEmailAppointment,
+        ccEmailAppointment,
+        AppointmentTemplate,
+        AppointmentSubject
       });
       await settingData
         .save()

@@ -95,6 +95,29 @@ const emailSettingsSchema = new mongoose.Schema(
       type: String,
       index: true,
     },
+     fromEmailAppointment: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    bccEmailAppointment: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    ccEmailAppointment: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    AppointmentTemplate: {
+      type: String,
+      index: true,
+    },
+    AppointmentSubject: {
+      type: String,
+      index: true,
+    },
 
   },
   { timestamps: true }
