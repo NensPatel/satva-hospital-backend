@@ -45,7 +45,6 @@ const careerSchema = new mongoose.Schema(
     },
     yearsOfExperience: {
       type: String,
-      required: true,
       trim: true,
     },
     currentCTC: {
