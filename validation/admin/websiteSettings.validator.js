@@ -4,7 +4,7 @@ export const websiteSettingsValidator = async (req, res, next) => {
   const schema = Joi.object({
     hospitalName: Joi.string().allow("").required().label("Hospital Name"),
     slogan: Joi.string().allow("").required().label("Slogan"),
-    description: Joi.string().allow("").required().label("Description"),
+    // description: Joi.string().allow("").required().label("Description"),
     email1: Joi.string().email().allow("").required().label("Primary Email"),
     // email2: Joi.string().email().allow("").required().label("Secondary Email"),
     contact1: Joi.string()

@@ -296,6 +296,12 @@ const uploadCareer = multer({
   fileFilter: docFilter,
 }).any();
 
+const uploadJobPosition = multer({
+  storage: createModelStorage("jobPosition"),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imgFilter,
+}).any();
+
 // Exports
 export {
   uploadSlider,
@@ -315,6 +321,7 @@ export {
   uploadHomeBanner,
   uploadWebsiteSetting,
   uploadCareer,
+  uploadJobPosition,
   uploadBloodDonationProof,
   uploadDocuments,
   imgFilter,

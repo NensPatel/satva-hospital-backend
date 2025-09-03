@@ -8,9 +8,9 @@ const websiteSettingSchema = new mongoose.Schema({
   slogan: {
     type: String
   },
-  description: {
-    type: String
-  },
+  // description: {
+  //   type: String
+  // },
   mapLink: {
     type: String
   },

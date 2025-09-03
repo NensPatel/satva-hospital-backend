@@ -29,6 +29,7 @@ import tieUpImageRoute from "./admin/tieUpImage.route.js";
 import bloodDonationRoute from "./admin/bloodDonation.route.js";
 import coreFacilitiesRoute from "./admin/coreFacilities.route.js";
 import homePageBannerRoute from "./admin/homePageBanner.route.js";
+import jobPositionRoute from  "./admin/jobPosition.route.js";
 
 const router = express.Router();
 
@@ -62,6 +63,6 @@ router.use("/tieUpImage", tieUpImageRoute);
 router.use("/bloodDonation", bloodDonationRoute);
 router.use("/coreFacilities", coreFacilitiesRoute);
 router.use("/homePageBanner", homePageBannerRoute);
-
+router.use("/jobPosition", jobPositionRoute);
 
 export default router;

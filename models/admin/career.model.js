@@ -2,41 +2,68 @@ import mongoose from "mongoose";
 
 const careerSchema = new mongoose.Schema(
   {
-    name: {
+    position: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "job_position"
+    },
+
+    // Personal Information
+    fullName: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
+    },
+    dob: {
+      type: Date,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
     },
     email: {
       type: String,
       required: true,
       trim: true,
-      lowercase: true
+      lowercase: true,
     },
-    contactNo: {
+
+    // Professional Information
+    currentDesignation: {
+      type: String,
+      trim: true,
+    },
+    currentOrganization: {
+      type: String,
+      trim: true,
+    },
+    currentLocation: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
-    experience: {
+    yearsOfExperience: {
       type: String,
-      trim: true
+      required: true,
+      trim: true,
     },
-    subject: {
+    currentCTC: {
       type: String,
-      trim: true
+      trim: true,
     },
-    uploadFile: {
+    uploadCV: {
       type: String,
-      trim: true
+      required: true,
+      trim: true,
     },
-    message: {
+    additionalInfo: {
       type: String,
-      trim: true
-    }
+      trim: true,
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 

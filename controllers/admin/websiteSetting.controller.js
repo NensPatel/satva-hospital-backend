@@ -6,7 +6,7 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
     const {
       hospitalName,
       slogan,
-      description,
+      // description,
       email1,
       email2,
       contact1,
@@ -40,7 +40,7 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
       setting = new WebsiteSetting({
         hospitalName,
         slogan,
-        description,
+        // description,
         email1,
         email2,
         contact1,
@@ -52,7 +52,7 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
         logoFooter: footerFile ? "websiteSetting/footer/" + footerFile.filename : null,
         bloodDonationPopup: {
           isActive: parsedBloodDonationPopup?.isActive || false,
-          description: parsedBloodDonationPopup?.description || ""
+          // description: parsedBloodDonationPopup?.description || ""
         }
       });
 
@@ -77,7 +77,7 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
 
       setting.hospitalName = hospitalName;
       setting.slogan = slogan;
-      setting.description = description;
+      // setting.description = description;
       setting.email1 = email1;
       setting.email2 = email2;
       setting.contact1 = contact1;
@@ -90,9 +90,9 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
         if (typeof parsedBloodDonationPopup.isActive !== "undefined") {
           setting.bloodDonationPopup.isActive = parsedBloodDonationPopup.isActive;
         }
-        if (typeof parsedBloodDonationPopup.description !== "undefined") {
-          setting.bloodDonationPopup.description = parsedBloodDonationPopup.description;
-        }
+        // if (typeof parsedBloodDonationPopup.description !== "undefined") {
+        //   setting.bloodDonationPopup.description = parsedBloodDonationPopup.description;
+        // }
       }
 
       await setting.save();

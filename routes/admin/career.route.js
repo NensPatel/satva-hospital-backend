@@ -5,7 +5,6 @@ import {
   validateCreate
 } from "../../validation/admin/career.validation.js";
 
-
 import {
   createCareer,
   deleteCareer,
