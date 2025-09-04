@@ -50,8 +50,7 @@ export const createDoctorDetails = async (req, res) => {
   }
 };
 
-
-export const updateDoctorDetails = async (req, res) => {
+ export const updateDoctorDetails = async (req, res) => {
   try {
     const { doctorDetails_id, sort_order_no, title, content, doctor_id, isActive } = req.body;
 
@@ -137,7 +136,7 @@ export const deleteDoctorDetails = async (req, res) => {
 export const getAllDoctorDetails = async (req, res) => {
   try {
     const data = await doctordetailSchema
-      .find()
+      .find({ isActive: true })
       .populate("doctor_id", "name")
       .sort({ sort_order_no: 1 });
     return res.status(200).send({
@@ -161,7 +160,7 @@ export const getDataById = async (req, res) => {
     }
 
     const data = await doctordetailSchema
-      .findById(doctorDetails_id)
+      .findOne({ _id: doctorDetails_id, isActive: true })
       .populate("doctor_id", "name");
     return res.status(200).send({
       isSuccess: true,

@@ -83,7 +83,7 @@ export const deletePatientReview = async (req, res) => {
 
 export const getAllPatientReview = async (req, res) => {
   try {
-    const getData = await patientRSchema.find().sort({ sort_order_no: 1 });
+    const getData = await patientRSchema.find({ isActive: true }).sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -97,7 +97,7 @@ export const getAllPatientReview = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { review_id } = req.body;
-    const getData = await patientRSchema.findById(review_id);
+    const getData = await patientRSchema.findOne({ _id: review_id, isActive: true });
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",

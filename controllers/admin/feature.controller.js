@@ -105,7 +105,7 @@ export const deleteFeature = async (req, res) => {
 
 export const getAllFeature = async (req, res) => {
   try {
-    const getData = await featuresSchema.find().sort({ sort_order_no: 1 });
+    const getData = await featuresSchema.find({ isActive: true }).sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -119,7 +119,10 @@ export const getAllFeature = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { feature_id } = req.body;
-    const getData = await featuresSchema.findById(feature_id);
+    const getData = await featuresSchema.findOne({ 
+      _id: feature_id, 
+      isActive: true 
+    });
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",

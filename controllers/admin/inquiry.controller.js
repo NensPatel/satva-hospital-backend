@@ -53,7 +53,7 @@ export const createInquiry = async (req, res) => {
 
 export const getAllInquiry = async (req, res) => {
   try {
-    const getData = await inqSchema.find().sort({ createdAt: -1 });
+    const getData = await inqSchema.find({ isActive: true }).sort({ createdAt: -1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",

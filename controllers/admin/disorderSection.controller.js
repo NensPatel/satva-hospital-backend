@@ -137,7 +137,7 @@ export const deleteDisorderSection = async (req, res) => {
 export const getAllDisorderSections = async (req, res) => {
   try {
     const data = await disorderSectionSchema
-      .find()
+      .find({ isActive: true })
       .populate("disorder_id", "name")
       .sort({ sort_order_no: 1 });
     return res.status(200).send({
@@ -197,7 +197,7 @@ export const getDataById = async (req, res) => {
     }
 
     const data = await disorderSectionSchema
-      .findById(disorderSection_id)
+      .findOne({ _id: disorderSection_id, isActive: true })
       .populate("disorder_id", "name");
     return res.status(200).send({
       isSuccess: true,
@@ -343,7 +343,7 @@ export const disorderSectionByDisorder = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const sections = await disorderSectionSchema
-      .find({ disorder_id: new mongoose.Types.ObjectId(disorder_id) })
+      .find({ disorder_id: new mongoose.Types.ObjectId(disorder_id)})
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);

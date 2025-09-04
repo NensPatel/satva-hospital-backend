@@ -82,7 +82,7 @@ export const deleteTabs = async (req, res) => {
 
 export const getAllTabs = async (req, res) => {
   try {
-    const data = await aboutTabSchema.find().sort({ sort_order_no: 1 });
+    const data = await aboutTabSchema.find({ isActive: true }).sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -96,7 +96,10 @@ export const getAllTabs = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const tabs_id = req.body.tabs_id;
-    const data = await aboutTabSchema.findById(tabs_id);
+    const data = await aboutTabSchema.findOne({
+      _id: tabs_id,
+      isActive: true, 
+    });
     if (!data) {
       return res
         .status(404)

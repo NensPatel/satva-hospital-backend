@@ -106,7 +106,7 @@ export const deleteMissionVision = async (req, res) => {
 
 export const getAllMissionVision = async (req, res) => {
   try {
-    const getData = await missionViSchema.find().sort({ sort_order_no: 1 });
+    const getData = await missionViSchema.find({ isActive: true }).sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -120,7 +120,7 @@ export const getAllMissionVision = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { mission_vision_id } = req.body;
-    const getData = await missionViSchema.findById(mission_vision_id);
+    const getData = await missionViSchema.findOne({ _id: mission_vision_id, isActive: true });
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",

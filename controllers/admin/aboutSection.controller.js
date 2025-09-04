@@ -120,7 +120,9 @@ export const deleteAboutSection = async (req, res) => {
 
 export const getAllAboutSection = async (req, res) => {
   try {
-    const getData = await aboutSectionSchema.find().sort({ sort_order_no: 1 });
+    const getData = await aboutSectionSchema
+      .find({ isActive: true })
+      .sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -137,7 +139,18 @@ export const getAllAboutSection = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { about_id } = req.body;
-    const getData = await aboutSectionSchema.findById(about_id);
+    const getData = await aboutSectionSchema.findOne({
+      _id: about_id,
+      isActive: true,
+    });
+
+    if (!getData) {
+      return res.status(404).send({
+        isSuccess: false,
+        message: "No active data found!",
+      });
+    }
+
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",
@@ -150,6 +163,7 @@ export const getDataById = async (req, res) => {
     });
   }
 };
+
 
 export const getPaginationData = async (req, res) => {
   try {

@@ -101,7 +101,7 @@ export const createCareer = async (req, res) => {
 // Fetch all careers with populated position
 export const getAllCareer = async (req, res) => {
   try {
-    const getData = await Career.find()
+    const getData = await Career.find({isActive: true})
       .populate("position", "title") 
       .sort({ createdAt: -1 });
 

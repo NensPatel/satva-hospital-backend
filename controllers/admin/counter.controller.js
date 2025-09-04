@@ -106,7 +106,7 @@ export const deleteCounters = async (req, res) => {
 
 export const getAllCounters = async (req, res) => {
   try {
-    const getData = await countersSchema.find().sort({ sort_order_no: 1 });
+    const getData = await countersSchema.find({ isActive: true }).sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -120,7 +120,10 @@ export const getAllCounters = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { counter_id } = req.body;
-    const getData = await countersSchema.findById(counter_id);
+    const getData = await countersSchema.findOne({
+      _id: counter_id,
+      isActive: true,
+    });
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",

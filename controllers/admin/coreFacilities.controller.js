@@ -90,7 +90,7 @@ export const deleteCoreFacilities = async (req, res) => {
 export const getAllCoreFacilities = async (req, res) => {
   try {
     const getData = await coreFacilitiesSchema
-      .find()
+      .find({ isActive: true })
       .sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
@@ -108,7 +108,10 @@ export const getAllCoreFacilities = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { core_facilities_id } = req.body;
-    const getData = await coreFacilitiesSchema.findById(core_facilities_id);
+    const getData = await coreFacilitiesSchema.findOne({
+      _id: core_facilities_id,
+      isActive: true,
+    });
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",

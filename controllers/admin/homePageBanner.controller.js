@@ -177,7 +177,7 @@ export const deleteHomeBanner = async (req, res) => {
 // Get All
 export const getAllHomeBanner = async (req, res) => {
   try {
-    const data = await homeBannersSchema.find().sort({ sort_order_no: 1 });
+    const data = await homeBannersSchema.find({ isActive: true }).sort({ sort_order_no: 1 });
     return res.status(200).json({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -192,7 +192,7 @@ export const getAllHomeBanner = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { home_banner_id } = req.body;
-    const data = await homeBannersSchema.findById(home_banner_id);
+    const data = await homeBannersSchema.findOne({ _id: home_banner_id, isActive: true });
     return res.status(200).json({
       isSuccess: true,
       message: "Get data successfully.",

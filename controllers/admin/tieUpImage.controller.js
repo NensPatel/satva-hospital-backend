@@ -120,7 +120,7 @@ export const deleteTieUpImage = async (req, res) => {
 
 export const getAllTieUpImage = async (req, res) => {
   try {
-    const data = await tieUpISchema.find().sort({ sort_order_no: 1 });
+    const data = await tieUpISchema.find({ isActive: true }).sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -134,7 +134,10 @@ export const getAllTieUpImage = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { tieUp_image_id } = req.body;
-    const data = await tieUpISchema.findById(tieUp_image_id);
+    const data = await tieUpISchema.findOne({ _id: tieUp_image_id, isActive: true });
+    if (!data) {
+      return res.status(404).send({ message: "Data not found!", isSuccess: false });
+    }
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",

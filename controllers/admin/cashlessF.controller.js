@@ -103,7 +103,7 @@ export const deleteCashlessFacility = async (req, res) => {
 
 export const getAllCashlessFacility = async (req, res) => {
   try {
-    const getData = await cashlessSchema.find().sort({ sort_order_no: 1 });
+    const getData = await cashlessSchema.find({ isActive: true }).sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -117,7 +117,10 @@ export const getAllCashlessFacility = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { cashless_id } = req.body;
-    const getData = await cashlessSchema.findById(cashless_id);
+    const getData = await cashlessSchema.findOne({
+      _id: cashless_id,
+      isActive: true,
+    });
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",

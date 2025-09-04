@@ -167,7 +167,7 @@ export const deleteGallaryCategory = async (req, res) => {
 export const getAllCategories = async (req, res) => {
   try {
     const data = await gallaryCategorySchema
-      .find()
+      .find({ isActive: true })
       .populate("gallaryTitleId", "categoryName")
       .sort({ sort_order_no: 1 });
     return res.status(200).send({
@@ -191,7 +191,7 @@ export const getDataById = async (req, res) => {
     }
 
     const data = await gallaryCategorySchema
-      .findById(gallaryCategoryId)
+      .findOne({ _id: gallaryCategoryId, isActive: true })
       .populate("gallaryTitleId", "categoryName");
     return res.status(200).send({
       isSuccess: true,
@@ -272,7 +272,7 @@ export const listCategoriesByTitle = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const gallaryCategories = await gallaryCategorySchema
-      .find({ gallaryTitleId: new mongoose.Types.ObjectId(gallaryTitleId) })
+      .find({ gallaryTitleId: new mongoose.Types.ObjectId(gallaryTitleId)})
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit)

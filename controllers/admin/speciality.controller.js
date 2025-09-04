@@ -195,7 +195,7 @@ export const deleteSpeciality = async (req, res) => {
 export const getAllSpeciality = async (req, res) => {
   try {
     const getData = await specialitySchema
-      .find()
+      .find({ isActive: true })
       .populate("disorders")
       .sort({ sort_order_no: 1 });
     return res.status(200).send({
@@ -213,7 +213,7 @@ export const getDataById = async (req, res) => {
   try {
     const { speciality_id } = req.body;
     const getData = await specialitySchema
-      .findById(speciality_id)
+      .findOne({ _id: speciality_id, isActive: true })
       .populate("disorders");
     return res.status(200).send({
       isSuccess: true,

@@ -141,7 +141,7 @@ export const getAllMenu = async (req, res) => {
     const parentsWithSubmenus = await Promise.all(
       parents.map(async (parent) => {
         const subMenus = await menusSchema
-          .find({ parentId: parent._id })
+          .find({ parentId: parent._id, isActive: true })
           .sort({ position: 1 })
           .lean();
 
@@ -171,7 +171,7 @@ export const getAllMenu = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const menu_id = req.body.menu_id;
-    const menu = await menusSchema.findById(menu_id);
+    const menu = await menusSchema.findOne({ _id: menu_id, isActive: true });
     return res.status(200).send({
       isSuccess: true,
       message: "Menu fetched successfully.",
@@ -231,12 +231,12 @@ export const getPaginationParentData = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const parentMenus = await menusSchema
-      .find({ parentId: null })
+      .find({ parentId: null})
       .sort({ position: 1 })
       .skip(skip)
       .limit(limit);
 
-    const totalRecords = await menusSchema.countDocuments({ parentId: null });
+    const totalRecords = await menusSchema.countDocuments({ parentId: null});
 
     const data = await Promise.all(
       parentMenus.map(async (menu) => {

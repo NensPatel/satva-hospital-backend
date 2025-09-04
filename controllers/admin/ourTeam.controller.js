@@ -178,11 +178,11 @@ export const deleteTeam = async (req, res) => {
 
 export const getAllTeam = async (req, res) => {
   try {
-    const data = await doctorSchema.find().sort({ sort_order_no: 1 }).lean();
+    const data = await doctorSchema.find({ isActive: true }).sort({ sort_order_no: 1 }).lean();
 
     const doctorIds = data.map((doc) => doc._id);
     const doctorDetails = await doctorDetailsSchema
-      .find({ doctor_id: { $in: doctorIds } })
+      .find({ doctor_id: { $in: doctorIds }, isActive: true })
       .sort({ sort_order_no: 1 })
       .lean();
 
@@ -213,7 +213,10 @@ export const getAllTeam = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { doctor_id } = req.body;
-    const data = await doctorSchema.findById(doctor_id);
+    const data = await doctorSchema.findOne({
+      _id: doctor_id,
+      isActive: true,
+    }).populate("doctorDetails").lean();
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",

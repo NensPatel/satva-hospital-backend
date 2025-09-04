@@ -104,7 +104,9 @@ export const deleteJobPosition = async (req, res) => {
 
 export const getAllJobPositions = async (req, res) => {
   try {
-    const getData = await jobPositionSchema.find().sort({ sort_order_no: 1 });
+    const getData = await jobPositionSchema
+    .find({ isActive: true })
+    .sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -118,7 +120,10 @@ export const getAllJobPositions = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { jobPosition_id } = req.body;
-    const getData = await jobPositionSchema.findById(jobPosition_id);
+   const getData = await jobPositionSchema.findOne({
+      _id: jobPosition_id,
+      isActive: true,
+    });
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",

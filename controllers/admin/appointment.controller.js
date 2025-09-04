@@ -74,7 +74,7 @@ export const createAppointment = async (req, res) => {
 export const getAllAppointment = async (req, res) => {
   try {
     const getData = await appointmentSchema
-      .find()
+      .find({ isActive: true } )
       .populate("doctor", "name designation")
       .sort({ createdAt: -1 });
 
@@ -94,8 +94,7 @@ export const getAllAppointment = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const appointment_id = req.body.appointment_id;
-    const getData = await appointmentSchema
-      .findById(appointment_id)
+    const getData = await appointmentSchema.findById(appointment_id)
       .populate("doctor", "name designation");
 
     if (!getData) {

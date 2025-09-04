@@ -132,7 +132,7 @@ export const deleteHealthInfo = async (req, res) => {
 
 export const getAllHealthInfo = async (req, res) => {
   try {
-    const getData = await healthSchema .find().sort({ sort_order_no: 1 });
+    const getData = await healthSchema.find({ isActive: true }).sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -146,7 +146,7 @@ export const getAllHealthInfo = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { info_id } = req.body;
-    const getData = await healthSchema .findById(info_id);
+    const getData = await healthSchema.findOne({ _id: info_id, isActive: true });
     return res.status(200).send({
       isSuccess: true,
       message: "Get data successfully.",
@@ -169,7 +169,7 @@ export const getPaginationData = async (req, res) => {
       .sort({ sort_order_no: 1 })
       .skip(skip)
       .limit(limit);
-    const totalRecords = await healthSchema .countDocuments();
+    const totalRecords = await healthSchema.countDocuments();
 
     return res.status(200).send({
       isSuccess: true,

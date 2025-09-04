@@ -195,7 +195,9 @@ export const deleteBanner = async (req, res) => {
 
 export const getAllBanners = async (req, res) => {
   try {
-    const data = await bannersSchema.find().sort({ sort_order_no: 1 });
+    const data = await bannersSchema
+      .find({ isActive: true })
+      .sort({ sort_order_no: 1 });
     return res.status(200).json({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -209,7 +211,10 @@ export const getAllBanners = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const { banner_id } = req.body;
-    const data = await bannersSchema.findById(banner_id);
+    const data = await bannersSchema.findOne({
+      _id: banner_id,
+      isActive: true,
+    });
     return res.status(200).json({
       isSuccess: true,
       message: "Get data successfully.",

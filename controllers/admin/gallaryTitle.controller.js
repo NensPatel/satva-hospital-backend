@@ -130,7 +130,7 @@ export const deleteGallaryTitle = async (req, res) => {
 
 export const getAllGallaryTitle = async (req, res) => {
   try {
-    const data = await gallaryTSchema.find().sort({ sort_order_no: 1 });
+    const data = await gallaryTSchema.find({ isActive: true }).sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -145,7 +145,7 @@ export const getDataById = async (req, res) => {
   try {
     const { gallary_id } = req.body;
     const data = await gallaryTSchema
-      .findById(gallary_id)
+      .findOne({ _id: gallary_id, isActive: true })
       .populate("gallaryCategory");
     if (!data) {
       return res

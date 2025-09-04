@@ -76,7 +76,7 @@ export const deleteTieUpTitle = async (req, res) => {
 
 export const getAllTieUpTitle = async (req, res) => {
   try {
-    const data = await tieUpTSchema.find().sort({ sort_order_no: 1 });
+    const data = await tieUpTSchema.find({ isActive: true }).sort({ sort_order_no: 1 });
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -90,7 +90,7 @@ export const getAllTieUpTitle = async (req, res) => {
 export const getDataById = async (req, res) => {
   try {
     const tieUp_id = req.body.tieUp_id;
-    const data = await tieUpTSchema.findById(tieUp_id);
+    const data = await tieUpTSchema.findOne({ _id: tieUp_id, isActive: true });
     if (!data) {
       return res
         .status(404)

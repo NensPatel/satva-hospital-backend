@@ -146,7 +146,7 @@ export const deleteGalleryImage = async (req, res) => {
 export const getAllGalleryImages = async (req, res) => {
   try {
     const data = await gallaryISchema
-      .find()
+      .find({ isActive: true })
       .populate("galleryCategoryId", "name")
       .sort({ sort_order_no: 1 });
     return res.status(200).send({
@@ -166,7 +166,7 @@ export const getDataById = async (req, res) => {
   try {
     const { gallary_image_id } = req.body;
     const data = await gallaryISchema
-      .findById(gallary_image_id)
+      .findOne({ _id: gallary_image_id, isActive: true })
       .populate("galleryCategoryId", "name");
     return res.status(200).send({
       isSuccess: true,
