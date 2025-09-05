@@ -16,9 +16,9 @@ export const createInquiry = async (req, res) => {
       .save()
       .then(async (data) => {
         const getEmailData = await emailSettingsSchema.findOne();
-        const fromEmail = getEmailData.fromEmail;
-        const ccEmail = getEmailData.ccEmail;
-        const bccEmail = getEmailData.bccEmail;
+        const fromEmailInquiry = getEmailData.fromEmailInquiry;
+        const ccEmailInquiry = getEmailData.ccEmailInquiry;
+        const bccEmailInquiry = getEmailData.bccEmailInquiry;
         const inquirySubject = getEmailData.inquirySubject;
         let inquiryTemplate = getEmailData.inquiryTemplate;
         inquiryTemplate = inquiryTemplate.replace(/\[FIRSTNAME\]/g, name);
@@ -26,11 +26,11 @@ export const createInquiry = async (req, res) => {
         inquiryTemplate = inquiryTemplate.replace(/\[PHONE\]/g, phone);
         inquiryTemplate = inquiryTemplate.replace(/\[MESSAGE\]/g, message);
         await sendMail(
-          fromEmail,
+          fromEmailInquiry,
           inquirySubject,
           inquiryTemplate,
-          ccEmail,
-          bccEmail
+          ccEmailInquiry,
+          bccEmailInquiry
         );
         return res.status(200).send({
           isSuccess: true,

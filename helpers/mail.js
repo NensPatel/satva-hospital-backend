@@ -14,15 +14,16 @@ export const sendMail = async (
   const transporter = nodemailer.createTransport({
     host: getEmailData.host,
     port: getEmailData.port,
+    secure: false,
     auth: {
-      user: getEmailData.email,
-      pass: getEmailData.password,
+      user: getEmailData.email,   
+      pass: getEmailData.password, 
     },
   });
 
   const mailOptions = {
-    from: getEmailData.fromEmail,
-    to: recipientEmail,
+    from: getEmailData.email,   
+    to: recipientEmail,       
     subject,
     html,
     attachments,

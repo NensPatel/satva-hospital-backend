@@ -71,11 +71,11 @@ export const createCareer = async (req, res) => {
       careerTemplate = careerTemplate.replace(/\[POSITION\]/g, positionTitle);
 
       await sendMail(
-        getEmailData.fromEmail1,
+        getEmailData.fromEmailCareer,
         getEmailData.careerSubject,
         careerTemplate,
-        getEmailData.ccEmail1,
-        getEmailData.bccEmail1,
+        getEmailData.ccEmailCareer,
+        getEmailData.bccEmailCareer,
         [
           {
             filename: uploadFile.originalname,

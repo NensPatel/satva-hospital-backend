@@ -26,40 +26,17 @@ const emailSettingsSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
-    fromEmail: {
+    fromEmailInquiry: {
       type: String,
       trim: true,
       index: true,
     },
-    bccEmail: {
+    bccEmailInquiry: {
       type: String,
       trim: true,
       index: true,
     },
-    ccEmail: {
-      type: String,
-      trim: true,
-      index: true,
-    },
-    careerTemplate: {
-      type: String,
-      index: true,
-    },
-    careerSubject: {
-      type: String,
-      index: true,
-    },
-    fromEmail1: {
-      type: String,
-      trim: true,
-      index: true,
-    },
-    bccEmail1: {
-      type: String,
-      trim: true,
-      index: true,
-    },
-    ccEmail1: {
+    ccEmailInquiry: {
       type: String,
       trim: true,
       index: true,
@@ -69,6 +46,29 @@ const emailSettingsSchema = new mongoose.Schema(
       index: true,
     },
     inquirySubject: {
+      type: String,
+      index: true,
+    },
+    fromEmailCareer: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    bccEmailCareer: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    ccEmailCareer: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    careerTemplate: {
+      type: String,
+      index: true,
+    },
+    careerSubject: {
       type: String,
       index: true,
     },
@@ -110,11 +110,11 @@ const emailSettingsSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
-    AppointmentTemplate: {
+    appointmentTemplate: {
       type: String,
       index: true,
     },
-    AppointmentSubject: {
+    appointmentSubject: {
       type: String,
       index: true,
     },

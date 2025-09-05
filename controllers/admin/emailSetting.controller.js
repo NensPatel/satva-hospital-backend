@@ -7,16 +7,16 @@ export const updateEmailSettings = async (req, res) => {
       password,
       host,
       port,
-      fromEmail,
-      bccEmail,
-      ccEmail,
-      fromEmail1,
-      bccEmail1,
-      ccEmail1,
-      careerTemplate,
-      careerSubject,
+      fromEmailInquiry,
+      bccEmailInquiry,
+      ccEmailInquiry,
       inquiryTemplate,
       inquirySubject,
+      fromEmailCareer,
+      bccEmailCareer,
+      ccEmailCareer,
+      careerTemplate,
+      careerSubject,
       fromEmailBlood,
       bccEmailBlood,
       ccEmailBlood,
@@ -25,10 +25,8 @@ export const updateEmailSettings = async (req, res) => {
       fromEmailAppointment,
       bccEmailAppointment,
       ccEmailAppointment,
-      AppointmentTemplate,
-      AppointmentSubject
-
-      
+      appointmentTemplate,
+      appointmentSubject,
     } = req.body;
     const findData = await emailSettingsSchema.findOne();
     if (findData) {
@@ -37,26 +35,26 @@ export const updateEmailSettings = async (req, res) => {
       updatedData["password"] = password;
       updatedData["host"] = host;
       updatedData["port"] = port;
-      updatedData["fromEmail"] = fromEmail;
-      updatedData["fromEmail1"] = fromEmail1;
-      updatedData["bccEmail"] = bccEmail;
-      updatedData["bccEmail1"] = bccEmail1;
-      updatedData["ccEmail"] = ccEmail;
-      updatedData["ccEmail1"] = ccEmail1;
-      updatedData["careerTemplate"] = careerTemplate;
+      updatedData["fromEmailInquiry"] = fromEmailInquiry;
+      updatedData["bccEmailInquiry"] = bccEmailInquiry;
+      updatedData["ccEmailInquiry"] = ccEmailInquiry;
       updatedData["inquiryTemplate"] = inquiryTemplate;
       updatedData["inquirySubject"] = inquirySubject;
+      updatedData["fromEmailCareer"] = fromEmailCareer;
+      updatedData["bccEmailCareer"] = bccEmailCareer;
+      updatedData["ccEmailCareer"] = ccEmailCareer;
+      updatedData["careerTemplate"] = careerTemplate;
       updatedData["careerSubject"] = careerSubject;
       updatedData["fromEmailBlood"] = fromEmailBlood;
-      updatedData["bccEmailBlood"] = bccEmailBlood; 
+      updatedData["bccEmailBlood"] = bccEmailBlood;
       updatedData["ccEmailBlood"] = ccEmailBlood;
       updatedData["bloodDonateTemplate"] = bloodDonateTemplate;
       updatedData["bloodDonateSubject"] = bloodDonateSubject;
       updatedData["fromEmailAppointment"] = fromEmailAppointment;
       updatedData["bccEmailAppointment"] = bccEmailAppointment;
       updatedData["ccEmailAppointment"] = ccEmailAppointment;
-      updatedData["AppointmentTemplate"] = AppointmentTemplate;
-      updatedData["AppointmentSubject"] = AppointmentSubject;
+      updatedData["appointmentTemplate"] = appointmentTemplate;
+      updatedData["appointmentSubject"] = appointmentSubject;
 
       await emailSettingsSchema
         .findByIdAndUpdate(findData.id, updatedData, { new: true })
@@ -79,26 +77,26 @@ export const updateEmailSettings = async (req, res) => {
         password,
         host,
         port,
-        fromEmail,
-        bccEmail,
-        ccEmail,
-        fromEmail1,
-        bccEmail1,
-        ccEmail1,
-        careerTemplate,
+        fromEmailInquiry,
+        bccEmailInquiry,
+        ccEmailInquiry,
         inquiryTemplate,
         inquirySubject,
+        fromEmailCareer,
+        bccEmailCareer,
+        ccEmailCareer,
+        careerTemplate,
         careerSubject,
         fromEmailBlood,
         bccEmailBlood,
         ccEmailBlood,
-        bloodDonateTemplate,    
+        bloodDonateTemplate,
         bloodDonateSubject,
         fromEmailAppointment,
         bccEmailAppointment,
         ccEmailAppointment,
-        AppointmentTemplate,
-        AppointmentSubject
+        appointmentTemplate,
+        appointmentSubject,
       });
       await settingData
         .save()

@@ -37,7 +37,7 @@ export const createAppointment = async (req, res) => {
       appointmentTemplate = appointmentTemplate.replace(/\[DOCTOR\]/g,
         populatedData.doctor?.name || "N/A"
       );
-      appointmentTemplate = appointmentTemplate.replace(/\[fullName\]/g, fullName);
+      appointmentTemplate = appointmentTemplate.replace(/\[FULLNAME\]/g, fullName);
       appointmentTemplate = appointmentTemplate.replace(/\[EMAIL\]/g, email);
       appointmentTemplate = appointmentTemplate.replace(/\[PHONE\]/g, phone);
       appointmentTemplate = appointmentTemplate.replace(/\[DATE\]/g,
