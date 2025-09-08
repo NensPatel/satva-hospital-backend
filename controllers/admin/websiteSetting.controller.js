@@ -14,7 +14,7 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
       address,
       socialMedia,
       mapLink,
-      bloodDonationPopup
+      // bloodDonationPopup
     } = req.body;
 
     // Parse social media
@@ -22,12 +22,12 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
     if (parsedSocialMedia === null) return;
 
     // Parse bloodDonationPopup JSON
-    let parsedBloodDonationPopup = null;
-    try {
-      parsedBloodDonationPopup = bloodDonationPopup ? JSON.parse(bloodDonationPopup) : null;
-    } catch (err) {
-      return res.status(400).json({ isSuccess: false, message: "Invalid JSON for bloodDonationPopup" });
-    }
+    // let parsedBloodDonationPopup = null;
+    // try {
+    //   parsedBloodDonationPopup = bloodDonationPopup ? JSON.parse(bloodDonationPopup) : null;
+    // } catch (err) {
+    //   return res.status(400).json({ isSuccess: false, message: "Invalid JSON for bloodDonationPopup" });
+    // }
 
     // Parse uploaded files
     const headerFile = req.files?.headerLogo?.[0];
@@ -50,10 +50,10 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
         mapLink,
         logoHeader: headerFile ? "websiteSetting/header/" + headerFile.filename : null,
         logoFooter: footerFile ? "websiteSetting/footer/" + footerFile.filename : null,
-        bloodDonationPopup: {
-          isActive: parsedBloodDonationPopup?.isActive || false,
-          // description: parsedBloodDonationPopup?.description || ""
-        }
+        // bloodDonationPopup: {
+        //   isActive: parsedBloodDonationPopup?.isActive || false,
+        //   // description: parsedBloodDonationPopup?.description || ""
+        // }
       });
 
       await setting.save();
@@ -86,14 +86,14 @@ export const createOrUpdateWebsiteSetting = async (req, res) => {
       setting.socialMedia = parsedSocialMedia;
       setting.mapLink = mapLink;
 
-      if (parsedBloodDonationPopup) {
-        if (typeof parsedBloodDonationPopup.isActive !== "undefined") {
-          setting.bloodDonationPopup.isActive = parsedBloodDonationPopup.isActive;
-        }
-        // if (typeof parsedBloodDonationPopup.description !== "undefined") {
-        //   setting.bloodDonationPopup.description = parsedBloodDonationPopup.description;
-        // }
-      }
+      // if (parsedBloodDonationPopup) {
+      //   if (typeof parsedBloodDonationPopup.isActive !== "undefined") {
+      //     setting.bloodDonationPopup.isActive = parsedBloodDonationPopup.isActive;
+      //   }
+      //   // if (typeof parsedBloodDonationPopup.description !== "undefined") {
+      //   //   setting.bloodDonationPopup.description = parsedBloodDonationPopup.description;
+      //   // }
+      // }
 
       await setting.save();
       return res.status(200).json({
