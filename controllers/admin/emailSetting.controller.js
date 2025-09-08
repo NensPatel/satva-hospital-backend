@@ -27,6 +27,11 @@ export const updateEmailSettings = async (req, res) => {
       ccEmailAppointment,
       appointmentTemplate,
       appointmentSubject,
+      fromEmailCallback,
+      bccEmailCallback,
+      ccEmailCallback,
+      callbackSubject,
+      callbackTemplate,
     } = req.body;
     const findData = await emailSettingsSchema.findOne();
     if (findData) {
@@ -55,6 +60,11 @@ export const updateEmailSettings = async (req, res) => {
       updatedData["ccEmailAppointment"] = ccEmailAppointment;
       updatedData["appointmentTemplate"] = appointmentTemplate;
       updatedData["appointmentSubject"] = appointmentSubject;
+      updatedData["fromEmailCallback"] = fromEmailCallback;
+      updatedData["bccEmailCallback"] = bccEmailCallback;
+      updatedData["ccEmailCallback"] = ccEmailCallback;
+      updatedData["callbackTemplate"] = callbackTemplate;
+      updatedData["callbackSubject"] = callbackSubject;
 
       await emailSettingsSchema
         .findByIdAndUpdate(findData.id, updatedData, { new: true })
@@ -97,6 +107,12 @@ export const updateEmailSettings = async (req, res) => {
         ccEmailAppointment,
         appointmentTemplate,
         appointmentSubject,
+        fromEmailCallback,
+        bccEmailCallback,
+        ccEmailCallback,
+        callbackSubject,
+        callbackTemplate,
+
       });
       await settingData
         .save()

@@ -118,6 +118,29 @@ const emailSettingsSchema = new mongoose.Schema(
       type: String,
       index: true,
     },
+    fromEmailCallback: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    bccEmailCallback: {
+      type: String,
+      trim: true,  
+      index: true,
+    },
+    ccEmailCallback: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    callbackTemplate: {
+      type: String,
+      index: true,  
+    },
+    callbackSubject: {
+      type: String,
+      index: true,
+    },
 
   },
   { timestamps: true }

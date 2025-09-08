@@ -31,6 +31,7 @@ import coreFacilitiesRoute from "./admin/coreFacilities.route.js";
 import homePageBannerRoute from "./admin/homePageBanner.route.js";
 import jobPositionRoute from  "./admin/jobPosition.route.js";
 import appointmentRoute from "./admin/appointment.route.js";
+import callbackRoute from "./admin/callback.route.js";
 
 const router = express.Router();
 
@@ -66,5 +67,6 @@ router.use("/coreFacilities", coreFacilitiesRoute);
 router.use("/homePageBanner", homePageBannerRoute);
 router.use("/jobPosition", jobPositionRoute);
 router.use("/appointment", appointmentRoute);
+router.use("/callback", callbackRoute);
 
 export default router;
