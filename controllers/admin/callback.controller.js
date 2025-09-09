@@ -52,7 +52,10 @@ export const createCallback = async (req, res) => {
 
 export const getAllCallback = async (req, res) => {
   try {
-    const getData = await callbackSchema.find({ isActive: true }).sort({ createdAt: -1 });
+    const getData = await callbackSchema
+      .find({ isActive: true })
+      .sort({ createdAt: -1 })
+      .select("fullName email phone isActive createdAt"); 
     return res.status(200).send({
       isSuccess: true,
       message: "Data listing successfully.",
@@ -65,6 +68,7 @@ export const getAllCallback = async (req, res) => {
     });
   }
 };
+
 
 export const getDataById = async (req, res) => {
   try {
@@ -124,7 +128,7 @@ export const getPaginationData = async (req, res) => {
     const getData = await callbackSchema
       .find()
       .sort({ createdAt: -1 })
-      .skip(skip)
+      .skip(skip) 
       .limit(limit);
     const totalRecords = await callbackSchema.countDocuments();
     return res.status(200).send({
